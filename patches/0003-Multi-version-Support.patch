@@ -1,0 +1,906 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 22:06:30 -0700
+Subject: [PATCH] Multi-version Support
+
+
+diff --git a/Insights-NMS/Core/src/main/java/dev/frankheijden/insights/nms/core/InsightsNMS.java b/Insights-NMS/Core/src/main/java/dev/frankheijden/insights/nms/core/InsightsNMS.java
+index c3f595a0311b9c1d5add5eb8c007a14cbf519f8e..f59abe0f060c9166d4d1f16880d982414dad9239 100644
+--- a/Insights-NMS/Core/src/main/java/dev/frankheijden/insights/nms/core/InsightsNMS.java
++++ b/Insights-NMS/Core/src/main/java/dev/frankheijden/insights/nms/core/InsightsNMS.java
+@@ -17,9 +17,9 @@ public abstract class InsightsNMS {
+      * TODO: can be yeeted later or reused if we decide to do backwards compatibility again
+      */
+     @SuppressWarnings("unchecked")
+-    public static <T extends InsightsNMS> T get() {
++    public static <T extends InsightsNMS> T get(String version) { // Insights-Patched - Multi-version support
+         try {
+-            Class<?> clazz = Class.forName("dev.frankheijden.insights.nms.current.InsightsNMSImpl");
++            Class<?> clazz = Class.forName("dev.frankheijden.insights.nms." + version +".InsightsNMSImpl"); // Insights-Patched - Multi-version support
+             return (T) clazz.getDeclaredConstructor().newInstance();
+         } catch (ReflectiveOperationException e) {
+             logger.log(Level.SEVERE, "Unable to get InsightsNMSImpl", e);
+diff --git a/Insights-NMS/Current/build.gradle.kts b/Insights-NMS/Current/build.gradle.kts
+deleted file mode 100644
+index e12737249358d7bbf19285ca03af09ddfce4e309..0000000000000000000000000000000000000000
+--- a/Insights-NMS/Current/build.gradle.kts
++++ /dev/null
+@@ -1,3 +0,0 @@
+-dependencies {
+-    paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
+-}
+diff --git a/Insights-NMS/v1_21_4/build.gradle.kts b/Insights-NMS/v1_21_4/build.gradle.kts
+new file mode 100644
+index 0000000000000000000000000000000000000000..72bd78bef91222aa9f0433a27eaeb4c82be31ce6
+--- /dev/null
++++ b/Insights-NMS/v1_21_4/build.gradle.kts
+@@ -0,0 +1,3 @@
++dependencies {
++    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
++}
+diff --git a/Insights-NMS/Current/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java b/Insights-NMS/v1_21_4/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+similarity index 100%
+rename from Insights-NMS/Current/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+rename to Insights-NMS/v1_21_4/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+diff --git a/Insights-NMS/v1_21_5/build.gradle.kts b/Insights-NMS/v1_21_5/build.gradle.kts
+new file mode 100644
+index 0000000000000000000000000000000000000000..93f4101005b03eb57513e0e1c91a3d7c09cb9d1c
+--- /dev/null
++++ b/Insights-NMS/v1_21_5/build.gradle.kts
+@@ -0,0 +1,3 @@
++dependencies {
++    paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
++}
+diff --git a/Insights-NMS/v1_21_5/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java b/Insights-NMS/v1_21_5/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..43fd79dafea6b88a239a446ebe422d4d0e5b501f
+--- /dev/null
++++ b/Insights-NMS/v1_21_5/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+@@ -0,0 +1,211 @@
++package dev.frankheijden.insights.nms.impl;
++
++import ca.spottedleaf.concurrentutil.util.Priority;
++import ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO;
++import com.mojang.serialization.Codec;
++import com.mojang.serialization.DataResult;
++import dev.frankheijden.insights.nms.core.ChunkEntity;
++import dev.frankheijden.insights.nms.core.ChunkSection;
++import dev.frankheijden.insights.nms.core.InsightsNMS;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.NbtOps;
++import net.minecraft.nbt.Tag;
++import net.minecraft.util.Mth;
++import net.minecraft.world.entity.Entity;
++import net.minecraft.world.level.ChunkPos;
++import net.minecraft.world.level.block.state.BlockState;
++import net.minecraft.world.level.chunk.LevelChunkSection;
++import net.minecraft.world.level.chunk.PalettedContainer;
++import net.minecraft.world.level.chunk.status.ChunkStatus;
++import net.minecraft.world.level.chunk.storage.SerializableChunkData;
++import org.bukkit.Chunk;
++import org.bukkit.Material;
++import org.bukkit.World;
++import org.bukkit.craftbukkit.CraftChunk;
++import org.bukkit.craftbukkit.CraftWorld;
++import org.bukkit.craftbukkit.entity.CraftEntity;
++import org.bukkit.craftbukkit.util.CraftMagicNumbers;
++import org.bukkit.entity.EntityType;
++import java.io.IOException;
++import java.util.Optional;
++import java.util.function.BiConsumer;
++import java.util.function.Consumer;
++
++public class InsightsNMSImpl extends InsightsNMS {
++
++    @Override
++    public void getLoadedChunkSections(Chunk chunk, Consumer<ChunkSection> sectionConsumer) {
++        LevelChunkSection[] levelChunkSections = ((CraftChunk) chunk).getHandle(ChunkStatus.FULL).getSections();
++        for (int i = 0; i < levelChunkSections.length; i++) {
++            sectionConsumer.accept(new ChunkSectionImpl(levelChunkSections[i], i));
++        }
++    }
++
++    @Override
++    public void getUnloadedChunkSections(World world, int chunkX, int chunkZ, Consumer<ChunkSection> sectionConsumer) {
++        var serverLevel = ((CraftWorld) world).getHandle();
++        int sectionsCount = serverLevel.getSectionsCount();
++        var chunkMap = serverLevel.getChunkSource().chunkMap;
++        var chunkPos = new ChunkPos(chunkX, chunkZ);
++
++        Optional<CompoundTag> tagOptional = chunkMap.read(chunkPos).join();
++        if (tagOptional.isEmpty()) return;
++        CompoundTag tag = tagOptional.get();
++
++        final Optional<ListTag> optionalSections = tag.getList("sections");
++        if (optionalSections.isEmpty()) {
++            logger.severe(String.format(
++                CHUNK_ERROR,
++                chunkX,
++                0,
++                chunkZ,
++                "Sections tag missing"
++            ));
++            return;
++        }
++        ListTag sectionsTagList = optionalSections.get();
++
++        DataResult<PalettedContainer<BlockState>> dataResult;
++        int nonNullSectionCount = 0;
++        for (int i = 0; i < sectionsTagList.size(); i++) {
++            final Optional<CompoundTag> optionalSectionTag = sectionsTagList.getCompound(i);
++            if (optionalSectionTag.isEmpty()) {
++                logger.severe(String.format(
++                    CHUNK_ERROR,
++                    chunkX,
++                    i,
++                    chunkZ,
++                    "Sections tag missing"
++                ));
++                continue;
++            }
++            CompoundTag sectionTag = optionalSectionTag.get();
++            var chunkSectionPart = sectionTag.getByte("Y").orElseThrow();
++            var sectionIndex = serverLevel.getSectionIndexFromSectionY(chunkSectionPart);
++            if (sectionIndex < 0 || sectionIndex >= sectionsCount) continue;
++
++            PalettedContainer<BlockState> blockStateContainer;
++            if (sectionTag.contains("block_states")) {
++                Codec<PalettedContainer<BlockState>> blockStateCodec = SerializableChunkData.BLOCK_STATE_CODEC;
++                dataResult = blockStateCodec.parse(
++                        NbtOps.INSTANCE,
++                        sectionTag.getCompound("block_states").orElseThrow()
++                ).promotePartial(message -> logger.severe(String.format(
++                        CHUNK_ERROR,
++                        chunkX,
++                        chunkSectionPart,
++                        chunkZ,
++                        message
++                )));
++
++                try {
++                    blockStateContainer = dataResult.getOrThrow();
++                } catch (IllegalStateException ex) {
++                    logger.severe(ex.getMessage());
++                    throw ex;
++                }
++            } else {
++                blockStateContainer = io.papermc.paper.FeatureHooks.emptyPalettedBlockContainer();
++            }
++
++            LevelChunkSection chunkSection = new LevelChunkSection(blockStateContainer, null);
++            sectionConsumer.accept(new ChunkSectionImpl(chunkSection, sectionIndex));
++            nonNullSectionCount++;
++        }
++
++        for (int i = nonNullSectionCount; i < sectionsCount; i++) {
++            sectionConsumer.accept(null);
++        }
++    }
++
++    @Override
++    public void getLoadedChunkEntities(Chunk chunk, Consumer<ChunkEntity> entityConsumer) {
++        for (org.bukkit.entity.Entity bukkitEntity : chunk.getEntities()) {
++            Entity entity = ((CraftEntity) bukkitEntity).getHandle();
++            entityConsumer.accept(new ChunkEntity(
++                    bukkitEntity.getType(),
++                    entity.getBlockX(),
++                    entity.getBlockY(),
++                    entity.getBlockZ()
++            ));
++        }
++    }
++
++    @Override
++    public void getUnloadedChunkEntities(
++            World world,
++            int chunkX,
++            int chunkZ,
++            Consumer<ChunkEntity> entityConsumer
++    ) throws IOException {
++        var serverLevel = ((CraftWorld) world).getHandle();
++        CompoundTag tag = MoonriseRegionFileIO.loadData(
++                serverLevel,
++                chunkX,
++                chunkZ,
++                MoonriseRegionFileIO.RegionFileType.ENTITY_DATA,
++                Priority.BLOCKING
++        );
++        if (tag == null) return;
++
++        readChunkEntities(tag.getList("Entities").orElseThrow(), entityConsumer);
++    }
++
++    private void readChunkEntities(ListTag listTag, Consumer<ChunkEntity> entityConsumer) {
++        for (Tag tag : listTag) {
++            readChunkEntities((CompoundTag) tag, entityConsumer);
++        }
++    }
++
++    private void readChunkEntities(CompoundTag nbt, Consumer<ChunkEntity> entityConsumer) {
++        var typeOptional = net.minecraft.world.entity.EntityType.by(nbt);
++        if (typeOptional.isPresent()) {
++            String entityTypeName = net.minecraft.world.entity.EntityType.getKey(typeOptional.get()).getPath();
++            ListTag posList = nbt.getList("Pos").orElseThrow();
++            entityConsumer.accept(new ChunkEntity(
++                    EntityType.fromName(entityTypeName),
++                    Mth.floor(Mth.clamp(posList.getDouble(0).orElseThrow(), -3E7D, 3E7D)),
++                    Mth.floor(Mth.clamp(posList.getDouble(1).orElseThrow(), -2E7D, 2E7D)),
++                    Mth.floor(Mth.clamp(posList.getDouble(2).orElseThrow(), -3E7D, 3E7D))
++            ));
++        }
++
++        if (nbt.contains("Passengers")) {
++            readChunkEntities(nbt.getList("Passengers").orElseThrow(), entityConsumer);
++        }
++    }
++
++    public static class ChunkSectionImpl implements ChunkSection {
++
++        private final LevelChunkSection chunkSection;
++        private final int index;
++
++        public ChunkSectionImpl(LevelChunkSection chunkSection, int index) {
++            this.chunkSection = chunkSection;
++            this.index = index;
++        }
++
++        @Override
++        public int index() {
++            return index;
++        }
++
++        @Override
++        public boolean isNull() {
++            return chunkSection == null;
++        }
++
++        @Override
++        public Material blockAt(int x, int y, int z) {
++            return CraftMagicNumbers.getMaterial(chunkSection.getBlockState(x, y, z).getBlock());
++        }
++
++        @Override
++        public void countBlocks(BiConsumer<Material, Integer> consumer) {
++            chunkSection.getStates().count((state, count) -> {
++                consumer.accept(CraftMagicNumbers.getMaterial(state.getBlock()), count);
++            });
++        }
++    }
++}
+diff --git a/Insights-NMS/v1_21_6/build.gradle.kts b/Insights-NMS/v1_21_6/build.gradle.kts
+new file mode 100644
+index 0000000000000000000000000000000000000000..babb71834fd479b89fa32b5a36d85b08efbde512
+--- /dev/null
++++ b/Insights-NMS/v1_21_6/build.gradle.kts
+@@ -0,0 +1,3 @@
++dependencies {
++    paperweight.paperDevBundle("1.21.6-R0.1-SNAPSHOT")
++}
+diff --git a/Insights-NMS/v1_21_6/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java b/Insights-NMS/v1_21_6/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..04dab016127bffe28a3c659211093b7dcfcc71c6
+--- /dev/null
++++ b/Insights-NMS/v1_21_6/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+@@ -0,0 +1,211 @@
++package dev.frankheijden.insights.nms.impl;
++
++import ca.spottedleaf.concurrentutil.util.Priority;
++import ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO;
++import com.mojang.serialization.Codec;
++import com.mojang.serialization.DataResult;
++import dev.frankheijden.insights.nms.core.ChunkEntity;
++import dev.frankheijden.insights.nms.core.ChunkSection;
++import dev.frankheijden.insights.nms.core.InsightsNMS;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.NbtOps;
++import net.minecraft.nbt.Tag;
++import net.minecraft.util.Mth;
++import net.minecraft.world.entity.Entity;
++import net.minecraft.world.level.ChunkPos;
++import net.minecraft.world.level.block.state.BlockState;
++import net.minecraft.world.level.chunk.LevelChunkSection;
++import net.minecraft.world.level.chunk.PalettedContainer;
++import net.minecraft.world.level.chunk.status.ChunkStatus;
++import net.minecraft.world.level.chunk.storage.SerializableChunkData;
++import org.bukkit.Chunk;
++import org.bukkit.Material;
++import org.bukkit.World;
++import org.bukkit.craftbukkit.CraftChunk;
++import org.bukkit.craftbukkit.CraftWorld;
++import org.bukkit.craftbukkit.entity.CraftEntity;
++import org.bukkit.craftbukkit.util.CraftMagicNumbers;
++import org.bukkit.entity.EntityType;
++import java.io.IOException;
++import java.util.Optional;
++import java.util.function.BiConsumer;
++import java.util.function.Consumer;
++
++public class InsightsNMSImpl extends InsightsNMS {
++
++    @Override
++    public void getLoadedChunkSections(Chunk chunk, Consumer<ChunkSection> sectionConsumer) {
++        LevelChunkSection[] levelChunkSections = ((CraftChunk) chunk).getHandle(ChunkStatus.FULL).getSections();
++        for (int i = 0; i < levelChunkSections.length; i++) {
++            sectionConsumer.accept(new ChunkSectionImpl(levelChunkSections[i], i));
++        }
++    }
++
++    @Override
++    public void getUnloadedChunkSections(World world, int chunkX, int chunkZ, Consumer<ChunkSection> sectionConsumer) {
++        var serverLevel = ((CraftWorld) world).getHandle();
++        int sectionsCount = serverLevel.getSectionsCount();
++        var chunkMap = serverLevel.getChunkSource().chunkMap;
++        var chunkPos = new ChunkPos(chunkX, chunkZ);
++
++        Optional<CompoundTag> tagOptional = chunkMap.read(chunkPos).join();
++        if (tagOptional.isEmpty()) return;
++        CompoundTag tag = tagOptional.get();
++
++        final Optional<ListTag> optionalSections = tag.getList("sections");
++        if (optionalSections.isEmpty()) {
++            logger.severe(String.format(
++                CHUNK_ERROR,
++                chunkX,
++                0,
++                chunkZ,
++                "Sections tag missing"
++            ));
++            return;
++        }
++        ListTag sectionsTagList = optionalSections.get();
++
++        DataResult<PalettedContainer<BlockState>> dataResult;
++        int nonNullSectionCount = 0;
++        for (int i = 0; i < sectionsTagList.size(); i++) {
++            final Optional<CompoundTag> optionalSectionTag = sectionsTagList.getCompound(i);
++            if (optionalSectionTag.isEmpty()) {
++                logger.severe(String.format(
++                    CHUNK_ERROR,
++                    chunkX,
++                    i,
++                    chunkZ,
++                    "Sections tag missing"
++                ));
++                continue;
++            }
++            CompoundTag sectionTag = optionalSectionTag.get();
++            var chunkSectionPart = sectionTag.getByte("Y").orElseThrow();
++            var sectionIndex = serverLevel.getSectionIndexFromSectionY(chunkSectionPart);
++            if (sectionIndex < 0 || sectionIndex >= sectionsCount) continue;
++
++            PalettedContainer<BlockState> blockStateContainer;
++            if (sectionTag.contains("block_states")) {
++                Codec<PalettedContainer<BlockState>> blockStateCodec = SerializableChunkData.BLOCK_STATE_CODEC;
++                dataResult = blockStateCodec.parse(
++                    NbtOps.INSTANCE,
++                    sectionTag.getCompound("block_states").orElseThrow()
++                ).promotePartial(message -> logger.severe(String.format(
++                    CHUNK_ERROR,
++                    chunkX,
++                    chunkSectionPart,
++                    chunkZ,
++                    message
++                )));
++
++                try {
++                    blockStateContainer = dataResult.getOrThrow();
++                } catch (IllegalStateException ex) {
++                    logger.severe(ex.getMessage());
++                    throw ex;
++                }
++            } else {
++                blockStateContainer = io.papermc.paper.FeatureHooks.emptyPalettedBlockContainer();
++            }
++
++            LevelChunkSection chunkSection = new LevelChunkSection(blockStateContainer, null);
++            sectionConsumer.accept(new ChunkSectionImpl(chunkSection, sectionIndex));
++            nonNullSectionCount++;
++        }
++
++        for (int i = nonNullSectionCount; i < sectionsCount; i++) {
++            sectionConsumer.accept(null);
++        }
++    }
++
++    @Override
++    public void getLoadedChunkEntities(Chunk chunk, Consumer<ChunkEntity> entityConsumer) {
++        for (org.bukkit.entity.Entity bukkitEntity : chunk.getEntities()) {
++            Entity entity = ((CraftEntity) bukkitEntity).getHandle();
++            entityConsumer.accept(new ChunkEntity(
++                bukkitEntity.getType(),
++                entity.getBlockX(),
++                entity.getBlockY(),
++                entity.getBlockZ()
++            ));
++        }
++    }
++
++    @Override
++    public void getUnloadedChunkEntities(
++        World world,
++        int chunkX,
++        int chunkZ,
++        Consumer<ChunkEntity> entityConsumer
++    ) throws IOException {
++        var serverLevel = ((CraftWorld) world).getHandle();
++        CompoundTag tag = MoonriseRegionFileIO.loadData(
++            serverLevel,
++            chunkX,
++            chunkZ,
++            MoonriseRegionFileIO.RegionFileType.ENTITY_DATA,
++            Priority.BLOCKING
++        );
++        if (tag == null) return;
++
++        readChunkEntities(tag.getList("Entities").orElseThrow(), entityConsumer);
++    }
++
++    private void readChunkEntities(ListTag listTag, Consumer<ChunkEntity> entityConsumer) {
++        for (Tag tag : listTag) {
++            readChunkEntities((CompoundTag) tag, entityConsumer);
++        }
++    }
++
++    private void readChunkEntities(CompoundTag nbt, Consumer<ChunkEntity> entityConsumer) {
++        var typeOptional = net.minecraft.world.entity.EntityType.byString(nbt.getString("id").orElseThrow());
++        if (typeOptional.isPresent()) {
++            String entityTypeName = net.minecraft.world.entity.EntityType.getKey(typeOptional.get()).getPath();
++            ListTag posList = nbt.getList("Pos").orElseThrow();
++            entityConsumer.accept(new ChunkEntity(
++                EntityType.fromName(entityTypeName),
++                Mth.floor(Mth.clamp(posList.getDouble(0).orElseThrow(), -3E7D, 3E7D)),
++                Mth.floor(Mth.clamp(posList.getDouble(1).orElseThrow(), -2E7D, 2E7D)),
++                Mth.floor(Mth.clamp(posList.getDouble(2).orElseThrow(), -3E7D, 3E7D))
++            ));
++        }
++
++        if (nbt.contains("Passengers")) {
++            readChunkEntities(nbt.getList("Passengers").orElseThrow(), entityConsumer);
++        }
++    }
++
++    public static class ChunkSectionImpl implements ChunkSection {
++
++        private final LevelChunkSection chunkSection;
++        private final int index;
++
++        public ChunkSectionImpl(LevelChunkSection chunkSection, int index) {
++            this.chunkSection = chunkSection;
++            this.index = index;
++        }
++
++        @Override
++        public int index() {
++            return index;
++        }
++
++        @Override
++        public boolean isNull() {
++            return chunkSection == null;
++        }
++
++        @Override
++        public Material blockAt(int x, int y, int z) {
++            return CraftMagicNumbers.getMaterial(chunkSection.getBlockState(x, y, z).getBlock());
++        }
++
++        @Override
++        public void countBlocks(BiConsumer<Material, Integer> consumer) {
++            chunkSection.getStates().count((state, count) -> {
++                consumer.accept(CraftMagicNumbers.getMaterial(state.getBlock()), count);
++            });
++        }
++    }
++}
+diff --git a/Insights-NMS/v1_21_9/build.gradle.kts b/Insights-NMS/v1_21_9/build.gradle.kts
+new file mode 100644
+index 0000000000000000000000000000000000000000..6815c52eadbaab0676f191a8f82d9fa21e1f65e4
+--- /dev/null
++++ b/Insights-NMS/v1_21_9/build.gradle.kts
+@@ -0,0 +1,3 @@
++dependencies {
++    paperweight.paperDevBundle("1.21.9-R0.1-SNAPSHOT")
++}
+diff --git a/Insights-NMS/v1_21_9/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java b/Insights-NMS/v1_21_9/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..41312229d684544c0884821204935f760528d294
+--- /dev/null
++++ b/Insights-NMS/v1_21_9/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
+@@ -0,0 +1,210 @@
++package dev.frankheijden.insights.nms.impl;
++
++import ca.spottedleaf.concurrentutil.util.Priority;
++import ca.spottedleaf.moonrise.patches.chunk_system.io.MoonriseRegionFileIO;
++import com.mojang.serialization.Codec;
++import com.mojang.serialization.DataResult;
++import dev.frankheijden.insights.nms.core.ChunkEntity;
++import dev.frankheijden.insights.nms.core.ChunkSection;
++import dev.frankheijden.insights.nms.core.InsightsNMS;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.NbtOps;
++import net.minecraft.nbt.Tag;
++import net.minecraft.util.Mth;
++import net.minecraft.world.entity.Entity;
++import net.minecraft.world.level.ChunkPos;
++import net.minecraft.world.level.block.state.BlockState;
++import net.minecraft.world.level.chunk.LevelChunkSection;
++import net.minecraft.world.level.chunk.PalettedContainer;
++import net.minecraft.world.level.chunk.status.ChunkStatus;
++import org.bukkit.Chunk;
++import org.bukkit.Material;
++import org.bukkit.World;
++import org.bukkit.craftbukkit.CraftChunk;
++import org.bukkit.craftbukkit.CraftWorld;
++import org.bukkit.craftbukkit.entity.CraftEntity;
++import org.bukkit.craftbukkit.util.CraftMagicNumbers;
++import org.bukkit.entity.EntityType;
++import java.io.IOException;
++import java.util.Optional;
++import java.util.function.BiConsumer;
++import java.util.function.Consumer;
++
++public class InsightsNMSImpl extends InsightsNMS {
++
++    @Override
++    public void getLoadedChunkSections(Chunk chunk, Consumer<ChunkSection> sectionConsumer) {
++        LevelChunkSection[] levelChunkSections = ((CraftChunk) chunk).getHandle(ChunkStatus.FULL).getSections();
++        for (int i = 0; i < levelChunkSections.length; i++) {
++            sectionConsumer.accept(new ChunkSectionImpl(levelChunkSections[i], i));
++        }
++    }
++
++    @Override
++    public void getUnloadedChunkSections(World world, int chunkX, int chunkZ, Consumer<ChunkSection> sectionConsumer) {
++        var serverLevel = ((CraftWorld) world).getHandle();
++        int sectionsCount = serverLevel.getSectionsCount();
++        var chunkMap = serverLevel.getChunkSource().chunkMap;
++        var chunkPos = new ChunkPos(chunkX, chunkZ);
++
++        Optional<CompoundTag> tagOptional = chunkMap.read(chunkPos).join();
++        if (tagOptional.isEmpty()) return;
++        CompoundTag tag = tagOptional.get();
++
++        final Optional<ListTag> optionalSections = tag.getList("sections");
++        if (optionalSections.isEmpty()) {
++            logger.severe(String.format(
++                CHUNK_ERROR,
++                chunkX,
++                0,
++                chunkZ,
++                "Sections tag missing"
++            ));
++            return;
++        }
++        ListTag sectionsTagList = optionalSections.get();
++
++        DataResult<PalettedContainer<BlockState>> dataResult;
++        int nonNullSectionCount = 0;
++        for (int i = 0; i < sectionsTagList.size(); i++) {
++            final Optional<CompoundTag> optionalSectionTag = sectionsTagList.getCompound(i);
++            if (optionalSectionTag.isEmpty()) {
++                logger.severe(String.format(
++                    CHUNK_ERROR,
++                    chunkX,
++                    i,
++                    chunkZ,
++                    "Sections tag missing"
++                ));
++                continue;
++            }
++            CompoundTag sectionTag = optionalSectionTag.get();
++            var chunkSectionPart = sectionTag.getByte("Y").orElseThrow();
++            var sectionIndex = serverLevel.getSectionIndexFromSectionY(chunkSectionPart);
++            if (sectionIndex < 0 || sectionIndex >= sectionsCount) continue;
++
++            PalettedContainer<BlockState> blockStateContainer;
++            if (sectionTag.contains("block_states")) {
++                Codec<PalettedContainer<BlockState>> blockStateCodec = serverLevel.palettedContainerFactory().blockStatesContainerCodec();
++                dataResult = blockStateCodec.parse(
++                        NbtOps.INSTANCE,
++                        sectionTag.getCompound("block_states").orElseThrow()
++                ).promotePartial(message -> logger.severe(String.format(
++                        CHUNK_ERROR,
++                        chunkX,
++                        chunkSectionPart,
++                        chunkZ,
++                        message
++                )));
++
++                try {
++                    blockStateContainer = dataResult.getOrThrow();
++                } catch (IllegalStateException ex) {
++                    logger.severe(ex.getMessage());
++                    throw ex;
++                }
++            } else {
++                blockStateContainer = io.papermc.paper.FeatureHooks.emptyPalettedBlockContainer();
++            }
++
++            LevelChunkSection chunkSection = new LevelChunkSection(blockStateContainer, null);
++            sectionConsumer.accept(new ChunkSectionImpl(chunkSection, sectionIndex));
++            nonNullSectionCount++;
++        }
++
++        for (int i = nonNullSectionCount; i < sectionsCount; i++) {
++            sectionConsumer.accept(null);
++        }
++    }
++
++    @Override
++    public void getLoadedChunkEntities(Chunk chunk, Consumer<ChunkEntity> entityConsumer) {
++        for (org.bukkit.entity.Entity bukkitEntity : chunk.getEntities()) {
++            Entity entity = ((CraftEntity) bukkitEntity).getHandle();
++            entityConsumer.accept(new ChunkEntity(
++                    bukkitEntity.getType(),
++                    entity.getBlockX(),
++                    entity.getBlockY(),
++                    entity.getBlockZ()
++            ));
++        }
++    }
++
++    @Override
++    public void getUnloadedChunkEntities(
++            World world,
++            int chunkX,
++            int chunkZ,
++            Consumer<ChunkEntity> entityConsumer
++    ) throws IOException {
++        var serverLevel = ((CraftWorld) world).getHandle();
++        CompoundTag tag = MoonriseRegionFileIO.loadData(
++                serverLevel,
++                chunkX,
++                chunkZ,
++                MoonriseRegionFileIO.RegionFileType.ENTITY_DATA,
++                Priority.BLOCKING
++        );
++        if (tag == null) return;
++
++        readChunkEntities(tag.getList("Entities").orElseThrow(), entityConsumer);
++    }
++
++    private void readChunkEntities(ListTag listTag, Consumer<ChunkEntity> entityConsumer) {
++        for (Tag tag : listTag) {
++            readChunkEntities((CompoundTag) tag, entityConsumer);
++        }
++    }
++
++    private void readChunkEntities(CompoundTag nbt, Consumer<ChunkEntity> entityConsumer) {
++        var typeOptional = net.minecraft.world.entity.EntityType.byString(nbt.getString("id").orElseThrow());
++        if (typeOptional.isPresent()) {
++            String entityTypeName = net.minecraft.world.entity.EntityType.getKey(typeOptional.get()).getPath();
++            ListTag posList = nbt.getList("Pos").orElseThrow();
++            entityConsumer.accept(new ChunkEntity(
++                    EntityType.fromName(entityTypeName),
++                    Mth.floor(Mth.clamp(posList.getDouble(0).orElseThrow(), -3E7D, 3E7D)),
++                    Mth.floor(Mth.clamp(posList.getDouble(1).orElseThrow(), -2E7D, 2E7D)),
++                    Mth.floor(Mth.clamp(posList.getDouble(2).orElseThrow(), -3E7D, 3E7D))
++            ));
++        }
++
++        if (nbt.contains("Passengers")) {
++            readChunkEntities(nbt.getList("Passengers").orElseThrow(), entityConsumer);
++        }
++    }
++
++    public static class ChunkSectionImpl implements ChunkSection {
++
++        private final LevelChunkSection chunkSection;
++        private final int index;
++
++        public ChunkSectionImpl(LevelChunkSection chunkSection, int index) {
++            this.chunkSection = chunkSection;
++            this.index = index;
++        }
++
++        @Override
++        public int index() {
++            return index;
++        }
++
++        @Override
++        public boolean isNull() {
++            return chunkSection == null;
++        }
++
++        @Override
++        public Material blockAt(int x, int y, int z) {
++            return CraftMagicNumbers.getMaterial(chunkSection.getBlockState(x, y, z).getBlock());
++        }
++
++        @Override
++        public void countBlocks(BiConsumer<Material, Integer> consumer) {
++            chunkSection.getStates().count((state, count) -> {
++                consumer.accept(CraftMagicNumbers.getMaterial(state.getBlock()), count);
++            });
++        }
++    }
++}
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+index 9e7ca53a684bac9f1d708a3aaee0c5d734ef1fb8..9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+@@ -61,7 +61,13 @@ import java.util.Locale;
+ 
+ public class Insights extends InsightsPlugin {
+ 
+-    private static final Version minimumCompatibleVersion = Version.of(1, 20, 6);
++    // Insights-Patched start - Multi-version support
++    private static final Version v1_21_4 = Version.of(1, 21, 4);
++    private static final Version v1_21_5 = Version.of(1, 21, 5);
++    private static final Version v1_21_6 = Version.of(1, 21, 6);
++    private static final Version v1_21_9 = Version.of(1, 21, 9);
++    private static final Version minimumCompatibleVersion = v1_21_4;
++    // Insights-Patched end - Multi-version support
+ 
+     private static final String SETTINGS_FILE_NAME = "config.yml";
+     private static final String MESSAGES_FILE_NAME = "messages.yml";
+@@ -100,11 +106,28 @@ public class Insights extends InsightsPlugin {
+     public void onEnable() {
+         super.onEnable();
+ 
+-        if (isIncompatible()) {
++        // Insights-Patched start - Multi-version support
++        try {
++            Class.forName("io.papermc.paper.configuration.Configuration");
++        } catch (Exception ignored) {
++        // Insights-Patched end - Multi-version support
+             throw new RuntimeException("Insights is incompatible with your server version, "
+                     + "we require a Paper backend and a Minecraft version of at least " + minimumCompatibleVersion);
+         }
+-        nms = InsightsNMS.get();
++        // Insights-Patched start - Multi-version support
++        var minecraftVersion = Version.parse(Bukkit.getServer().getMinecraftVersion(), false);
++        String version;
++        if (minecraftVersion.isEquivalentTo(v1_21_4)) {
++            version = "v1_21_4";
++        } else if (minecraftVersion.isEquivalentTo(v1_21_5)) {
++            version = "v1_21_5";
++        } else if (minecraftVersion.isHigherThanOrEquivalentTo(v1_21_6) && minecraftVersion.isLowerThan(v1_21_9)) {
++            version = "v1_21_6";
++        } else {
++            version = "v1_21_9";
++        }
++        nms = InsightsNMS.get(version);
++        // Insights-Patched end - Multi-version support
+ 
+         this.audiences = BukkitAudiences.create(this);
+         this.listenerManager = new ListenerManager(this);
+@@ -153,7 +176,7 @@ public class Insights extends InsightsPlugin {
+ 
+     @Override
+     public void onDisable() {
+-        if (isIncompatible()) return;
++        if (nms == null) return; // Insights-Patched - Multi-version support
+ 
+         listenerManager.unregister();
+         redstoneUpdateCount.stop();
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java b/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
+index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..6d003755b6ee783e6922c5a7c9c17a014ee3e1b7 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
+@@ -20,6 +20,7 @@ public class CommandSenderMapper implements SenderMapper<CommandSourceStack, Com
+         return new CommandSourceStack() {
+             @Override
+             public @NotNull Location getLocation() {
++                if (location != null) return location; // Insights-Patched - Multi-version support (Taken from PR#226 upstream)
+                 if (sender instanceof Entity entity) {
+                     return entity.getLocation();
+                 }
+@@ -35,8 +36,25 @@ public class CommandSenderMapper implements SenderMapper<CommandSourceStack, Com
+ 
+             @Override
+             public @Nullable Entity getExecutor() {
++                if (entity != null) return entity; // Insights-Patched - Multi-version support (Taken from PR#226 upstream)
+                 return sender instanceof Entity entity ? entity : null;
+             }
++
++            // Insights-Patched start - Multi-version support (Taken from PR#226 upstream)
++            private Location location = null;
++            private Entity entity = null;
++            @Override
++            public CommandSourceStack withLocation(final Location location) {
++                this.location = location;
++                return this;
++            }
++
++            @Override
++            public CommandSourceStack withExecutor(final Entity executor) {
++                this.entity = executor;
++                return this;
++            }
++            // Insights-Patched end - Multi-version support (Taken from PR#226 upstream)
+         };
+     }
+ }
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 064b190cc95795360453f4e79777be0086c01ab5..2fc3c87c1fb8dd96d5c7f3da0a17261f33a36814 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -23,7 +23,7 @@ subprojects {
+ 
+     val groupParts = project.name.split('-').drop(1)
+     val nms = groupParts.isNotEmpty() && groupParts.first() == "NMS"
+-    val nmsImpl = nms && groupParts.last() != "Core"
++    val nmsImpl = nms && groupParts.last().startsWith("v") // Insights-Patched - Multi-version support
+     if (nmsImpl) {
+         apply(plugin = "io.papermc.paperweight.userdev")
+     }
+@@ -66,6 +66,7 @@ subprojects {
+         testImplementation(libs.paperApi)
+         testImplementation(libs.assertj)
+         testImplementation(libs.mockitoCore)
++        testRuntimeOnly(libs.junitPlatformLauncher) // Insights-Patched - Multi-version support
+         testImplementation(libs.jupiterApi)
+         testImplementation(libs.jupiterParams)
+         testImplementation(libs.jupiterEngine)
+@@ -128,8 +129,7 @@ dependencies {
+         .list(rootProject.projectDir.toPath().resolve("Insights-NMS"))
+         .filter { !it.fileName.toString().startsWith(".") }
+         .forEach {
+-            val configuration = if (it.fileName.toString() == "Core") "shadow" else "reobf"
+-            implementation(project(":Insights-NMS-${it.fileName}", configuration))
++            implementation(project(":Insights-NMS-${it.fileName}", "shadow")) // Insights-Patched - Multi-version support
+         }
+ }
+ 
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+index 6813cb26ee29d0d4aa12f999137308ce9262c630..e1bcdba7f3cbd5ee1b57bf041497486c97a1e1f4 100644
+--- a/gradle/libs.versions.toml
++++ b/gradle/libs.versions.toml
+@@ -1,23 +1,23 @@
+ [versions]
+ # libraries
+ semver = "0.10.2"
+-minecraft = "1.21.3-R0.1-SNAPSHOT"
++minecraft = "1.21.10-R0.1-SNAPSHOT" # Insights-Patched - Multi-version support
+ paperLib = "1.0.8"
+ bStats = "3.0.0"
+-adventure = "4.17.0"
+-adventurePlatformBukkit = "4.3.3"
++adventure = "4.25.0" # Insights-Patched - Multi-version support
++adventurePlatformBukkit = "4.4.1" # Insights-Patched - Multi-version support
+ assertj = "3.23.1"
+ mockito = "4.11.0"
+-jupiter = "5.9.1"
+-brigadier = "1.0.18"
++jupiter = "6.0.0" # Insights-Patched - Multi-version support
++brigadier = "1.3.10" # Insights-Patched - Multi-version support
+ placeholderapi = "2.11.6"
+ commodore = "2.2"
+-cloudPaper = "2.0.0-beta.9"
+-cloud = "2.0.0-rc.2"
++cloudPaper = "2.0.0-beta.10" # Insights-Patched - Multi-version support
++cloud = "2.0.0" # Insights-Patched - Multi-version support
+ 
+ # plugins
+-shadow = "9.0.0-beta2"
+-userdev = "1.7.5"
++shadow = "9.2.2" # Insights-Patched - Multi-version support
++userdev = "2.0.0-beta.19" # Insights-Patched - Multi-version support
+ pluginYml = "0.6.0"
+ 
+ [libraries]
+@@ -30,6 +30,7 @@ adventureMiniMessage = { group = "net.kyori", name = "adventure-text-minimessage
+ adventurePlatformBukkit = { group = "net.kyori", name = "adventure-platform-bukkit", version.ref = "adventurePlatformBukkit" }
+ assertj = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
+ mockitoCore = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
++junitPlatformLauncher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "jupiter" } # Insights-Patched - Multi-version support
+ jupiterApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "jupiter" }
+ jupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "jupiter" }
+ jupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "jupiter" }
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index 20db9ad5c9586383e2ed8c3c4c00862a0e3a6e1c..ab521aa0780677700f1316bd8b786055ac6461d8 100644
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -1,6 +1,6 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-9.1.0-bin.zip
+ networkTimeout=10000
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists

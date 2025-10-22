@@ -35,7 +35,7 @@ index 4ab382e45b6218f8afd0d0f5a681537f81f59680..649241b998c92ecba5103819527e2cf7
                          resultFuture.completeExceptionally(tpErr);
                      } else if (Boolean.FALSE.equals(success)) {
 diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
-index d22a4df16b961b705e2e540d9499a708b37f822d..961b5954ba7f3760b59f27045d7b82a13c33cca7 100644
+index 72e49d8449b288df8273d0a1ab1219939ff70d35..ce7a779c4e698750a2c751f0de249f9dec4e57d8 100644
 --- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
 +++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
 @@ -42,7 +42,6 @@ import dev.frankheijden.insights.nms.core.InsightsNMS;
@@ -46,7 +46,7 @@ index d22a4df16b961b705e2e540d9499a708b37f822d..961b5954ba7f3760b59f27045d7b82a1
  import org.bukkit.Bukkit;
  import org.bukkit.World;
  import org.bukkit.command.CommandSender;
-@@ -144,8 +143,15 @@ public class Insights extends InsightsPlugin {
+@@ -167,8 +166,15 @@ public class Insights extends InsightsPlugin {
      }
  
      private static boolean isIncompatible() {
@@ -54,7 +54,7 @@ index d22a4df16b961b705e2e540d9499a708b37f822d..961b5954ba7f3760b59f27045d7b82a1
 +        try {
 +            Class.forName("io.papermc.paper.configuration.Configuration");
 +        } catch (Exception ignored) {
-+            return false;
++            return true;
 +        }
          var minecraftVersion = Version.parse(Bukkit.getServer().getMinecraftVersion(), false);
 -        return !PaperLib.isPaper() || minecraftVersion.compareTo(minimumCompatibleVersion) < 0;
@@ -111,7 +111,7 @@ index e58192cacce8e1784277b470eb145aa343bd8834..e6fe3ac486ab97ca1cc18fa81a493c0c
              disableListeners.add(paperBlockListener);
          } else {
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 5aa20adbe61015d32220ebea303304b932cce2cb..312cf3be8eb875348cd0024c5a0490ab96d00ca9 100644
+index 3bbd10a8a19f2398878ab55d4e0fd85f7bd6d884..989493f1d88667e33c99effeab21372696f54787 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -52,7 +52,6 @@ subprojects {

@@ -114,7 +114,7 @@ index 0ad58232b524c78a9061b6f05ccb43ca1672cd66..e566215f491fec019ab7c3517fa25ce3
      }
  
 diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
-index 4e7966e3f4283e12c4be040a9978ed4f66a1e615..d22a4df16b961b705e2e540d9499a708b37f822d 100644
+index 9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5..72e49d8449b288df8273d0a1ab1219939ff70d35 100644
 --- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
 +++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
 @@ -43,7 +43,6 @@ import dev.frankheijden.insights.placeholders.InsightsPlaceholderExpansion;
@@ -125,7 +125,7 @@ index 4e7966e3f4283e12c4be040a9978ed4f66a1e615..d22a4df16b961b705e2e540d9499a708
  import org.bukkit.Bukkit;
  import org.bukkit.World;
  import org.bukkit.command.CommandSender;
-@@ -85,7 +84,6 @@ public class Insights extends InsightsPlugin {
+@@ -91,7 +90,6 @@ public class Insights extends InsightsPlugin {
      private InsightsPlaceholderExpansion placeholderExpansion;
      private BukkitTask playerTracker = null;
      private BukkitTask updateChecker = null;
@@ -133,15 +133,15 @@ index 4e7966e3f4283e12c4be040a9978ed4f66a1e615..d22a4df16b961b705e2e540d9499a708
      private RedstoneUpdateCount redstoneUpdateCount = null;
      private ChunkTeleport chunkTeleport;
      private InsightsNMS nms;
-@@ -106,7 +104,6 @@ public class Insights extends InsightsPlugin {
-         }
-         nms = InsightsNMS.get();
+@@ -129,7 +127,6 @@ public class Insights extends InsightsPlugin {
+         nms = InsightsNMS.get(version);
+         // Insights-Patched end - Multi-version support
  
 -        this.audiences = BukkitAudiences.create(this);
          this.listenerManager = new ListenerManager(this);
          reloadConfigs();
  
-@@ -163,7 +160,6 @@ public class Insights extends InsightsPlugin {
+@@ -186,7 +183,6 @@ public class Insights extends InsightsPlugin {
              placeholderExpansion = null;
          }
          chunkContainerExecutor.shutdown();
@@ -149,7 +149,7 @@ index 4e7966e3f4283e12c4be040a9978ed4f66a1e615..d22a4df16b961b705e2e540d9499a708
      }
  
      @Override
-@@ -200,7 +196,7 @@ public class Insights extends InsightsPlugin {
+@@ -223,7 +219,7 @@ public class Insights extends InsightsPlugin {
      public void reloadMessages() {
          File file = new File(getDataFolder(), MESSAGES_FILE_NAME);
          try {
@@ -159,7 +159,7 @@ index 4e7966e3f4283e12c4be040a9978ed4f66a1e615..d22a4df16b961b705e2e540d9499a708
              ex.printStackTrace();
          }
 diff --git a/build.gradle.kts b/build.gradle.kts
-index bc46002a35c1ea5b80541e8b0346db64ace388b1..5aa20adbe61015d32220ebea303304b932cce2cb 100644
+index 582d5e37a671a214b7642c848072e1ec5a6b20f0..3bbd10a8a19f2398878ab55d4e0fd85f7bd6d884 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -53,9 +53,6 @@ subprojects {
