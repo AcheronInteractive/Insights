@@ -1,0 +1,132 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Wed, 22 Oct 2025 01:10:35 -0700
+Subject: [PATCH] Drop PaperLib
+
+
+diff --git a/Insights-API/src/main/java/dev/frankheijden/insights/api/concurrent/ChunkTeleport.java b/Insights-API/src/main/java/dev/frankheijden/insights/api/concurrent/ChunkTeleport.java
+index 4ab382e45b6218f8afd0d0f5a681537f81f59680..649241b998c92ecba5103819527e2cf76dd22f9e 100644
+--- a/Insights-API/src/main/java/dev/frankheijden/insights/api/concurrent/ChunkTeleport.java
++++ b/Insights-API/src/main/java/dev/frankheijden/insights/api/concurrent/ChunkTeleport.java
+@@ -1,7 +1,6 @@
+ package dev.frankheijden.insights.api.concurrent;
+ 
+ import dev.frankheijden.insights.api.InsightsPlugin;
+-import io.papermc.lib.PaperLib;
+ import java.util.concurrent.CompletableFuture;
+ import org.bukkit.HeightMap;
+ import org.bukkit.Location;
+@@ -21,7 +20,7 @@ public class ChunkTeleport {
+      */
+     public CompletableFuture<Result> teleportPlayerToChunk(Player player, World world, int x, int z, boolean gen) {
+         CompletableFuture<Result> resultFuture = new CompletableFuture<>();
+-        PaperLib.getChunkAtAsync(world, x, z, gen).whenComplete((chunk, chunkErr) -> {
++        world.getChunkAtAsync(x, z, gen).whenComplete((chunk, chunkErr) -> { // Insights-Patched - Drop PaperLib
+             if (chunkErr != null) {
+                 resultFuture.completeExceptionally(chunkErr);
+                 return;
+@@ -35,7 +34,7 @@ public class ChunkTeleport {
+                 int blockZ = (z << 4) + 8;
+                 int blockY = world.getHighestBlockYAt(blockX, blockZ, HeightMap.MOTION_BLOCKING) + 1;
+                 var loc = new Location(world, blockX + .5, blockY, blockZ + .5);
+-                PaperLib.teleportAsync(player, loc).whenComplete((success, tpErr) -> {
++                player.teleportAsync(loc).whenComplete((success, tpErr) -> { // Insights-Patched - Drop PaperLib
+                     if (tpErr != null) {
+                         resultFuture.completeExceptionally(tpErr);
+                     } else if (Boolean.FALSE.equals(success)) {
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+index d22a4df16b961b705e2e540d9499a708b37f822d..961b5954ba7f3760b59f27045d7b82a13c33cca7 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+@@ -42,7 +42,6 @@ import dev.frankheijden.insights.nms.core.InsightsNMS;
+ import dev.frankheijden.insights.placeholders.InsightsPlaceholderExpansion;
+ import dev.frankheijden.insights.tasks.PlayerTrackerTask;
+ import io.leangen.geantyref.TypeToken;
+-import io.papermc.lib.PaperLib;
+ import org.bukkit.Bukkit;
+ import org.bukkit.World;
+ import org.bukkit.command.CommandSender;
+@@ -144,8 +143,15 @@ public class Insights extends InsightsPlugin {
+     }
+ 
+     private static boolean isIncompatible() {
++        // Insights-Patched start - Drop PaperLib
++        try {
++            Class.forName("io.papermc.paper.configuration.Configuration");
++        } catch (Exception ignored) {
++            return false;
++        }
+         var minecraftVersion = Version.parse(Bukkit.getServer().getMinecraftVersion(), false);
+-        return !PaperLib.isPaper() || minecraftVersion.compareTo(minimumCompatibleVersion) < 0;
++        return minecraftVersion.compareTo(minimumCompatibleVersion) < 0;
++        // Insights-Patched end - Drop PaperLib
+     }
+ 
+     @Override
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java b/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
+index e58192cacce8e1784277b470eb145aa343bd8834..e6fe3ac486ab97ca1cc18fa81a493c0c68bc5b63 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
+@@ -14,7 +14,6 @@ import dev.frankheijden.insights.listeners.PistonListener;
+ import dev.frankheijden.insights.listeners.PlayerListener;
+ import dev.frankheijden.insights.listeners.WorldListener;
+ import dev.frankheijden.insights.nms.core.ReflectionUtils;
+-import io.papermc.lib.PaperLib;
+ import java.lang.reflect.InvocationTargetException;
+ import java.lang.reflect.Method;
+ import java.util.ArrayList;
+@@ -40,9 +39,7 @@ public class ListenerManager implements InsightsListenerManager {
+         List<Method> disableMethods = new ArrayList<>();
+         disableMethods.addAll(ReflectionUtils.getAnnotatedMethods(BlockListener.class, AllowDisabling.class));
+         disableMethods.addAll(ReflectionUtils.getAnnotatedMethods(WorldListener.class, AllowDisabling.class));
+-        if (PaperLib.isPaper()) {
+-            disableMethods.addAll(ReflectionUtils.getAnnotatedMethods(PaperBlockListener.class, AllowDisabling.class));
+-        }
++        disableMethods.addAll(ReflectionUtils.getAnnotatedMethods(PaperBlockListener.class, AllowDisabling.class)); // Insights-Patched - Drop PaperLib
+         ALLOWED_DISABLE_EVENTS = getEventClassMap(disableMethods);
+ 
+         List<Method> priorityMethods = new ArrayList<>();
+@@ -84,9 +81,11 @@ public class ListenerManager implements InsightsListenerManager {
+         this.chunkListener = new ChunkListener(plugin);
+         this.blockListener = new BlockListener(plugin);
+         this.worldListener = new WorldListener(plugin);
+-        this.paperEntityListener = PaperLib.isPaper() ? new PaperEntityListener(plugin) : null;
+-        this.paperBlockListener = PaperLib.isPaper() ? new PaperBlockListener(plugin) : null;
+-        this.entityListener = PaperLib.isPaper() ? null : new EntityListener(plugin);
++        // Insights-Patched start - Drop PaperLib
++        this.paperEntityListener = new PaperEntityListener(plugin);
++        this.paperBlockListener = new PaperBlockListener(plugin);
++        this.entityListener = null;
++        // Insights-Patched end - Drop PaperLib
+         this.pistonListener = new PistonListener(plugin);
+     }
+ 
+@@ -104,7 +103,7 @@ public class ListenerManager implements InsightsListenerManager {
+             BlockRedstoneEvent.getHandlerList().unregister(blockListener);
+         }
+ 
+-        if (PaperLib.isPaper()) {
++        if (true) { // Insights-Patched - Drop PaperLib
+             listeners.add(paperEntityListener);
+             disableListeners.add(paperBlockListener);
+         } else {
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 5aa20adbe61015d32220ebea303304b932cce2cb..312cf3be8eb875348cd0024c5a0490ab96d00ca9 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -52,7 +52,6 @@ subprojects {
+     val libs = rootProject.libs
+     dependencies {
+         compileOnly(libs.paperApi)
+-        implementation(libs.paperLib)
+ 
+         if (!nms || nmsImpl) {
+             compileOnly(project(":Insights-NMS-Core"))
+@@ -94,7 +93,6 @@ subprojects {
+ 
+     tasks.withType<ShadowJar> {
+         relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
+-        relocate("io.papermc.lib", "$dependencyDir.paperlib")
+         if (nmsImpl) {
+             relocate(project.group.toString().replaceAfterLast('.', "impl"), project.group.toString())
+         }
