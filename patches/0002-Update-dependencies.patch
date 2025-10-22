@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 21:31:36 -0700
+Subject: [PATCH] Update dependencies
+
+
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+index 6813cb26ee29d0d4aa12f999137308ce9262c630..7aea8bf2c8f9cd6eb81d0f3c79d1ddc9f72621a7 100644
+--- a/gradle/libs.versions.toml
++++ b/gradle/libs.versions.toml
+@@ -6,17 +6,17 @@ paperLib = "1.0.8"
+ bStats = "3.0.0"
+ adventure = "4.17.0"
+ adventurePlatformBukkit = "4.3.3"
+-assertj = "3.23.1"
+-mockito = "4.11.0"
+-jupiter = "5.9.1"
+-brigadier = "1.0.18"
++assertj = "3.27.0" # Insights-Patched - Update dependencies
++mockito = "5.14.1" # Insights-Patched - Update dependencies
++jupiter = "5.11.4" # Insights-Patched - Update dependencies
++brigadier = "1.3.10" # Insights-Patched - Update dependencies
+ placeholderapi = "2.11.6"
+ commodore = "2.2"
+-cloudPaper = "2.0.0-beta.9"
+-cloud = "2.0.0-rc.2"
++cloudPaper = "2.0.0-beta.10" # Insights-Patched - Update dependencies
++cloud = "2.0.0"
+ 
+ # plugins
+-shadow = "9.0.0-beta2"
++shadow = "9.0.0-beta4" # Insights-Patched - Update dependencies
+ userdev = "1.7.5"
+ pluginYml = "0.6.0"
+ 
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index 20db9ad5c9586383e2ed8c3c4c00862a0e3a6e1c..5c40527d4cfcbcf8905f43baa15b45e4660afee8 100644
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -1,6 +1,6 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip
+ networkTimeout=10000
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
