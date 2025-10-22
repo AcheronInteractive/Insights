@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 23:28:03 -0700
+Subject: [PATCH] Fix bypass with waterlogged blocks
+
+
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/listeners/BlockListener.java b/Insights/src/main/java/dev/frankheijden/insights/listeners/BlockListener.java
+index efd8624bd7b461fdcaae33a3f4fc2f3a2dd0b7c7..06983a784d98d2cb00c5eb3f56d3c30cf0a6c8d0 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/listeners/BlockListener.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/listeners/BlockListener.java
+@@ -190,7 +190,7 @@ public class BlockListener extends InsightsListener {
+         if (itemStack != null && itemStack.getType() == Material.MILK_BUCKET) return;
+ 
+         // Handle the removal
+-        handleRemoval(event.getPlayer(), block.getLocation(), ScanObject.of(block.getType()), 1, false);
++        handleRemoval(event.getPlayer(), block.getLocation(), ScanObject.of(block.getBlockData() instanceof org.bukkit.block.data.Waterlogged ? Material.WATER : block.getType()), 1, false); // Insights-Patched - Fix bypass with waterlogged blocks (Taken from upstream PR#228)
+     }
+ 
+     private Block getTopNonGravityBlock(Block start) {
