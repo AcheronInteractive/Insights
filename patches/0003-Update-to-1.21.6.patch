@@ -1,20 +1,20 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Yive <6853318+Yive@users.noreply.github.com>
 Date: Tue, 21 Oct 2025 22:06:30 -0700
-Subject: [PATCH] Update to 1.21.5
+Subject: [PATCH] Update to 1.21.6
 
 
 diff --git a/Insights-NMS/Current/build.gradle.kts b/Insights-NMS/Current/build.gradle.kts
-index e12737249358d7bbf19285ca03af09ddfce4e309..eecbeeb6117abcfc5362e7400b258915a6bcc18f 100644
+index e12737249358d7bbf19285ca03af09ddfce4e309..78ce7c98f25c5948b6bec0440bd5789ba4115bc7 100644
 --- a/Insights-NMS/Current/build.gradle.kts
 +++ b/Insights-NMS/Current/build.gradle.kts
 @@ -1,3 +1,3 @@
  dependencies {
 -    paperweight.paperDevBundle("1.21.3-R0.1-SNAPSHOT")
-+    paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT") // Insights-Patched - 1.21.5 Support
++    paperweight.paperDevBundle("1.21.6-R0.1-SNAPSHOT") // Insights-Patched - 1.21.6 Support
  }
 diff --git a/Insights-NMS/Current/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java b/Insights-NMS/Current/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
-index 855c8eb2c2137b22a725932730685a8defc4a23d..047d76bb621542bf098e7987af58125b1f3a6913 100644
+index 855c8eb2c2137b22a725932730685a8defc4a23d..afd3af1b178de2ff04b416ee3a4c44a8ed3c95fe 100644
 --- a/Insights-NMS/Current/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
 +++ b/Insights-NMS/Current/src/main/java/dev/frankheijden/insights/nms/impl/InsightsNMSImpl.java
 @@ -55,22 +55,48 @@ public class InsightsNMSImpl extends InsightsNMS {
@@ -80,8 +80,12 @@ index 855c8eb2c2137b22a725932730685a8defc4a23d..047d76bb621542bf098e7987af58125b
      }
  
      private void readChunkEntities(ListTag listTag, Consumer<ChunkEntity> entityConsumer) {
-@@ -147,17 +173,21 @@ public class InsightsNMSImpl extends InsightsNMS {
-         var typeOptional = net.minecraft.world.entity.EntityType.by(nbt);
+@@ -144,20 +170,24 @@ public class InsightsNMSImpl extends InsightsNMS {
+     }
+ 
+     private void readChunkEntities(CompoundTag nbt, Consumer<ChunkEntity> entityConsumer) {
+-        var typeOptional = net.minecraft.world.entity.EntityType.by(nbt);
++        var typeOptional = net.minecraft.world.entity.EntityType.byString(nbt.getString("id").orElseThrow()); // Insights-Patched - 1.21.6 Support (Taken from upstream PR#228)
          if (typeOptional.isPresent()) {
              String entityTypeName = net.minecraft.world.entity.EntityType.getKey(typeOptional.get()).getPath();
 -            ListTag posList = nbt.getList("Pos", Tag.TAG_DOUBLE);
@@ -160,7 +164,7 @@ index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..a7f03e4598fe0ffb81456e88738a495c
      }
  }
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
-index 6813cb26ee29d0d4aa12f999137308ce9262c630..d3b56106f7523bfa7495e58a60ee7690da405ac8 100644
+index 6813cb26ee29d0d4aa12f999137308ce9262c630..ba4007a3c5302daeb4f07e8354b9168613757b11 100644
 --- a/gradle/libs.versions.toml
 +++ b/gradle/libs.versions.toml
 @@ -1,23 +1,23 @@
@@ -168,13 +172,13 @@ index 6813cb26ee29d0d4aa12f999137308ce9262c630..d3b56106f7523bfa7495e58a60ee7690
  # libraries
  semver = "0.10.2"
 -minecraft = "1.21.3-R0.1-SNAPSHOT"
-+minecraft = "1.21.5-R0.1-SNAPSHOT" # Insights-Patched - 1.21.5 Support
++minecraft = "1.21.6-R0.1-SNAPSHOT" # Insights-Patched - 1.21.6 Support
  paperLib = "1.0.8"
  bStats = "3.0.0"
 -adventure = "4.17.0"
 -adventurePlatformBukkit = "4.3.3"
-+adventure = "4.21.0" # Insights-Patched - 1.21.5 Support
-+adventurePlatformBukkit = "4.3.4" # Insights-Patched - 1.21.4 Support
++adventure = "4.23.0" # Insights-Patched - 1.21.6 Support
++adventurePlatformBukkit = "4.4.0" # Insights-Patched - 1.21.6 Support
  assertj = "3.23.1"
  mockito = "4.11.0"
  jupiter = "5.9.1"
@@ -196,14 +200,14 @@ index 6813cb26ee29d0d4aa12f999137308ce9262c630..d3b56106f7523bfa7495e58a60ee7690
  
  [libraries]
 diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
-index 20db9ad5c9586383e2ed8c3c4c00862a0e3a6e1c..3c44eb1b6f51651d94d16116819e4cfca6e5d483 100644
+index 20db9ad5c9586383e2ed8c3c4c00862a0e3a6e1c..942039f27b7d6a160ea532d07e047459750b5d37 100644
 --- a/gradle/wrapper/gradle-wrapper.properties
 +++ b/gradle/wrapper/gradle-wrapper.properties
 @@ -1,6 +1,6 @@
  distributionBase=GRADLE_USER_HOME
  distributionPath=wrapper/dists
 -distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
-+distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.1-bin.zip
  networkTimeout=10000
  zipStoreBase=GRADLE_USER_HOME
  zipStorePath=wrapper/dists
