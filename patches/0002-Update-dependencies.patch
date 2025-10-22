@@ -5,18 +5,22 @@ Subject: [PATCH] Update dependencies
 
 
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
-index 6813cb26ee29d0d4aa12f999137308ce9262c630..7aea8bf2c8f9cd6eb81d0f3c79d1ddc9f72621a7 100644
+index 6813cb26ee29d0d4aa12f999137308ce9262c630..25be16f8f714dd4c2f3584912785066a2e33146e 100644
 --- a/gradle/libs.versions.toml
 +++ b/gradle/libs.versions.toml
-@@ -6,17 +6,17 @@ paperLib = "1.0.8"
+@@ -4,19 +4,19 @@ semver = "0.10.2"
+ minecraft = "1.21.3-R0.1-SNAPSHOT"
+ paperLib = "1.0.8"
  bStats = "3.0.0"
- adventure = "4.17.0"
- adventurePlatformBukkit = "4.3.3"
+-adventure = "4.17.0"
+-adventurePlatformBukkit = "4.3.3"
 -assertj = "3.23.1"
 -mockito = "4.11.0"
 -jupiter = "5.9.1"
 -brigadier = "1.0.18"
-+assertj = "3.27.0" # Insights-Patched - Update dependencies
++adventure = "4.20.0" # Insights-Patched - Update dependencies
++adventurePlatformBukkit = "4.3.4" # Insights-Patched - Update dependencies
++assertj = "3.27.3" # Insights-Patched - Update dependencies
 +mockito = "5.14.1" # Insights-Patched - Update dependencies
 +jupiter = "5.11.4" # Insights-Patched - Update dependencies
 +brigadier = "1.3.10" # Insights-Patched - Update dependencies
@@ -29,19 +33,19 @@ index 6813cb26ee29d0d4aa12f999137308ce9262c630..7aea8bf2c8f9cd6eb81d0f3c79d1ddc9
  
  # plugins
 -shadow = "9.0.0-beta2"
-+shadow = "9.0.0-beta4" # Insights-Patched - Update dependencies
++shadow = "9.0.0-beta17" # Insights-Patched - Update dependencies
  userdev = "1.7.5"
  pluginYml = "0.6.0"
  
 diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
-index 20db9ad5c9586383e2ed8c3c4c00862a0e3a6e1c..5c40527d4cfcbcf8905f43baa15b45e4660afee8 100644
+index 20db9ad5c9586383e2ed8c3c4c00862a0e3a6e1c..18362b78bde9b4d46280284f1ea9ce081ba0dd38 100644
 --- a/gradle/wrapper/gradle-wrapper.properties
 +++ b/gradle/wrapper/gradle-wrapper.properties
 @@ -1,6 +1,6 @@
  distributionBase=GRADLE_USER_HOME
  distributionPath=wrapper/dists
 -distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
-+distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-8.12-bin.zip
  networkTimeout=10000
  zipStoreBase=GRADLE_USER_HOME
  zipStorePath=wrapper/dists

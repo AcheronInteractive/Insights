@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 22:06:30 -0700
+Subject: [PATCH] Update to 1.21.4
+
+
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java b/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
+index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..a7f03e4598fe0ffb81456e88738a495cee828bf8 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
+@@ -20,6 +20,7 @@ public class CommandSenderMapper implements SenderMapper<CommandSourceStack, Com
+         return new CommandSourceStack() {
+             @Override
+             public @NotNull Location getLocation() {
++                if (location != null) return location; // Insights-Patched - 1.21.4 Support (Taken from PR#226 upstream)
+                 if (sender instanceof Entity entity) {
+                     return entity.getLocation();
+                 }
+@@ -35,8 +36,25 @@ public class CommandSenderMapper implements SenderMapper<CommandSourceStack, Com
+ 
+             @Override
+             public @Nullable Entity getExecutor() {
++                if (entity != null) return entity; // Insights-Patched - 1.21.4 Support (Taken from PR#226 upstream)
+                 return sender instanceof Entity entity ? entity : null;
+             }
++
++            // Insights-Patched start - 1.21.4 Support (Taken from PR#226 upstream)
++            private Location location = null;
++            private Entity entity = null;
++            @Override
++            public CommandSourceStack withLocation(final Location location) {
++                this.location = location;
++                return this;
++            }
++
++            @Override
++            public CommandSourceStack withExecutor(final Entity executor) {
++                this.entity = executor;
++                return this;
++            }
++            // Insights-Patched end - 1.21.4 Support (Taken from PR#226 upstream)
+         };
+     }
+ }
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+index 25be16f8f714dd4c2f3584912785066a2e33146e..f92daf421cd2180036bf2ffdaf312cd4f63a6f7e 100644
+--- a/gradle/libs.versions.toml
++++ b/gradle/libs.versions.toml
+@@ -1,7 +1,7 @@
+ [versions]
+ # libraries
+ semver = "0.10.2"
+-minecraft = "1.21.3-R0.1-SNAPSHOT"
++minecraft = "1.21.4-R0.1-SNAPSHOT" # Insights-Patched - 1.21.4 Support
+ paperLib = "1.0.8"
+ bStats = "3.0.0"
+ adventure = "4.20.0" # Insights-Patched - Update dependencies
+@@ -17,7 +17,7 @@ cloud = "2.0.0"
+ 
+ # plugins
+ shadow = "9.0.0-beta17" # Insights-Patched - Update dependencies
+-userdev = "1.7.5"
++userdev = "2.0.0-beta.14" # Insights-Patched - 1.21.4 Support
+ pluginYml = "0.6.0"
+ 
+ [libraries]
