@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Wed, 22 Oct 2025 01:17:45 -0700
+Subject: [PATCH] Drop Commodore
+
+
+diff --git a/Insights/build.gradle.kts b/Insights/build.gradle.kts
+index 5f404219bbb49341c52147b036ca790a233d7fd4..d335ee1117ad5fd6207e31ba2b6e4c389a345555 100644
+--- a/Insights/build.gradle.kts
++++ b/Insights/build.gradle.kts
+@@ -14,7 +14,6 @@ repositories {
+ dependencies {
+     compileOnly(libs.brigadier)
+     compileOnly(libs.placeholderapi)
+-    implementation(libs.commodore)
+     implementation(libs.cloudPaper)
+     implementation(libs.cloudAnnotations)
+     implementation(libs.semver)
+@@ -26,7 +25,6 @@ tasks.withType<ShadowJar> {
+     relocate("com.github.zafarkhaja.semver", "$dependencyDir.semver")
+     relocate("org.incendo.cloud", "$dependencyDir.cloud")
+     relocate("io.leangen.geantyref", "$dependencyDir.typetoken")
+-    relocate("me.lucko.commodore", "$dependencyDir.commodore")
+ }
+ 
+ bukkit {
