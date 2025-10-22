@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 22:36:29 -0700
+Subject: [PATCH] Remove checkstyle
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 064b190cc95795360453f4e79777be0086c01ab5..af4e968ea6034156b52b5445a8eabd199f639f3e 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -16,7 +16,6 @@ version = "6.19.3"
+ 
+ subprojects {
+     apply(plugin = "java")
+-    apply(plugin = "checkstyle")
+     apply(plugin = "com.gradleup.shadow")
+ 
+     version = rootProject.version
+@@ -73,7 +72,7 @@ subprojects {
+ 
+     tasks {
+         build {
+-            dependsOn("shadowJar", "checkstyleMain", "checkstyleTest", "test")
++            dependsOn("shadowJar", "test") // Insights-Patched - Remove checkstyle
+         }
+ 
+         compileJava {
+@@ -96,13 +95,6 @@ subprojects {
+         }
+     }
+ 
+-    tasks.withType<Checkstyle>().configureEach {
+-        configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
+-        ignoreFailures = false
+-        maxErrors = 0
+-        maxWarnings = 0
+-    }
+-
+     tasks.withType<ShadowJar> {
+         relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
+         relocate("io.papermc.lib", "$dependencyDir.paperlib")
