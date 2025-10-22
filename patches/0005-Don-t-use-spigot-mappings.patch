@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 22:32:42 -0700
+Subject: [PATCH] Don't use spigot mappings
+
+
+diff --git a/Insights-API/src/main/java/dev/frankheijden/insights/api/reflection/RTileEntityTypes.java b/Insights-API/src/main/java/dev/frankheijden/insights/api/reflection/RTileEntityTypes.java
+index e3034ec7b0ee56dc5f3b864b4bf29e0015fb8447..ea32d823dddc95494dc94e142c86144cf77658ae 100644
+--- a/Insights-API/src/main/java/dev/frankheijden/insights/api/reflection/RTileEntityTypes.java
++++ b/Insights-API/src/main/java/dev/frankheijden/insights/api/reflection/RTileEntityTypes.java
+@@ -24,13 +24,13 @@ public class RTileEntityTypes {
+     static {
+         try {
+             var tileEntityTypesClazz = Class.forName(
+-                    "net.minecraft.world.level.block.entity.TileEntityTypes"
++                    "net.minecraft.world.level.block.entity.BlockEntityType" // Insights-Patched - Don't use spigot mappings
+             );
+             var craftBlockDataClazz = Class.forName(
+                     "org.bukkit.craftbukkit.block.data.CraftBlockData"
+             );
+             var blockDataClazz = Class.forName(
+-                    "net.minecraft.world.level.block.state.IBlockData"
++                    "net.minecraft.world.level.block.state.BlockState" // Insights-Patched - Don't use spigot mappings
+             );
+             MethodHandle isValidMethodHandle;
+             try {
