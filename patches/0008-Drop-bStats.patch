@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Wed, 22 Oct 2025 00:46:21 -0700
+Subject: [PATCH] Drop bStats
+
+
+diff --git a/Insights-API/src/main/java/dev/frankheijden/insights/api/metrics/MetricsManager.java b/Insights-API/src/main/java/dev/frankheijden/insights/api/metrics/MetricsManager.java
+index eea30740493d063ed5e52928ae50bfc9a3b94fdf..e416e8fa791319d658087028d8b6aa1c7ef70183 100644
+--- a/Insights-API/src/main/java/dev/frankheijden/insights/api/metrics/MetricsManager.java
++++ b/Insights-API/src/main/java/dev/frankheijden/insights/api/metrics/MetricsManager.java
+@@ -2,8 +2,6 @@ package dev.frankheijden.insights.api.metrics;
+ 
+ import dev.frankheijden.insights.api.InsightsPlugin;
+ import java.util.concurrent.atomic.LongAdder;
+-import org.bstats.bukkit.Metrics;
+-import org.bstats.charts.SingleLineChart;
+ 
+ public class MetricsManager {
+ 
+@@ -17,9 +15,6 @@ public class MetricsManager {
+      * Constructs a new MetricsManager with some extra charts.
+      */
+     public MetricsManager(InsightsPlugin plugin) {
+-        var metrics = new Metrics(plugin, BSTATS_METRICS_ID);
+-        metrics.addCustomChart(new SingleLineChart("chunks-scanned", chunkScanMetric));
+-        metrics.addCustomChart(new SingleLineChart("limits", limitMetric));
+     }
+ 
+     public IntegerMetric getChunkScanMetric() {
+diff --git a/build.gradle.kts b/build.gradle.kts
+index a73811ac5ca99fd35adba82810d6857f702ec5c9..bc46002a35c1ea5b80541e8b0346db64ace388b1 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -53,7 +53,6 @@ subprojects {
+     dependencies {
+         compileOnly(libs.paperApi)
+         implementation(libs.paperLib)
+-        implementation(libs.bStatsBukkit)
+         implementation(libs.adventureApi)
+         implementation(libs.adventureMiniMessage)
+         implementation(libs.adventurePlatformBukkit)
+@@ -99,7 +98,6 @@ subprojects {
+     tasks.withType<ShadowJar> {
+         relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
+         relocate("io.papermc.lib", "$dependencyDir.paperlib")
+-        relocate("org.bstats", "$dependencyDir.bstats")
+         relocate("net.kyori.adventure", "$dependencyDir.adventure")
+         relocate("net.kyori.examination", "$dependencyDir.examination")
+         relocate("net.kyori.option", "$dependencyDir.option")
