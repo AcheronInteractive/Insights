@@ -1,0 +1,184 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Wed, 22 Oct 2025 01:03:09 -0700
+Subject: [PATCH] Don't shade adventure
+
+
+diff --git a/Insights-API/src/main/java/dev/frankheijden/insights/api/config/Messages.java b/Insights-API/src/main/java/dev/frankheijden/insights/api/config/Messages.java
+index 4438979f2f0c2dd4a41111a7888b5ef855b5fe39..9a4a719243caf5892b583d6601c1ed5f2557aff4 100644
+--- a/Insights-API/src/main/java/dev/frankheijden/insights/api/config/Messages.java
++++ b/Insights-API/src/main/java/dev/frankheijden/insights/api/config/Messages.java
+@@ -7,7 +7,6 @@ import dev.frankheijden.insights.api.objects.chunk.ChunkLocation;
+ import dev.frankheijden.insights.api.objects.wrappers.ScanObject;
+ import dev.frankheijden.insights.api.utils.StringUtils;
+ import net.kyori.adventure.audience.Audience;
+-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+ import net.kyori.adventure.text.Component;
+ import net.kyori.adventure.text.event.ClickEvent;
+ import net.kyori.adventure.text.event.HoverEvent;
+@@ -33,25 +32,19 @@ import java.util.function.ToLongFunction;
+ public class Messages {
+ 
+     private final InsightsPlugin plugin;
+-    private final BukkitAudiences audiences;
+     private final YamlParser parser;
+     private final MiniMessage miniMessage;
+     private final Map<Key, String> messageCache;
+     private final TagResolver prefixResolver;
+ 
+-    protected Messages(InsightsPlugin plugin, BukkitAudiences audiences, YamlParser parser) {
++    protected Messages(InsightsPlugin plugin, YamlParser parser) { // Insights-Patched - Don't shade adventure
+         this.plugin = plugin;
+-        this.audiences = audiences;
+         this.parser = parser;
+         this.miniMessage = MiniMessage.miniMessage();
+         this.messageCache = new EnumMap<>(Key.class);
+         this.prefixResolver = tagOf("prefix", miniMessage.deserialize(getRawMessage(Key.PREFIX)));
+     }
+ 
+-    public BukkitAudiences getAudiences() {
+-        return audiences;
+-    }
+-
+     public Message getMessage(Key messageKey) {
+         return createMessage(getRawMessage(messageKey));
+     }
+@@ -122,11 +115,10 @@ public class Messages {
+ 
+     public static Messages load(
+             InsightsPlugin plugin,
+-            BukkitAudiences audiences,
+             File file,
+             InputStream defaultSettings
+     ) throws IOException {
+-        return new Messages(plugin, audiences, PassiveYamlParser.load(file, defaultSettings));
++        return new Messages(plugin, PassiveYamlParser.load(file, defaultSettings)); // Insights-Patched - Don't shade adventure
+     }
+ 
+     public static TagResolver tagOf(String name, String content) {
+@@ -268,13 +260,6 @@ public class Messages {
+             return Optional.of(miniMessage.deserialize(content, resolver));
+         }
+ 
+-        /**
+-         * Sends the message to given receiver, using the message type defined.
+-         */
+-        public void sendTo(CommandSender sender) {
+-            sendTo(audiences.sender(sender));
+-        }
+-
+         /**
+          * Sends the message to given audience, using the message type defined.
+          */
+@@ -380,12 +365,10 @@ public class Messages {
+                 components.add(elementFormatFunction.apply(elements[i]));
+             }
+ 
+-            var audience = audiences.sender(sender);
+-
+             header.sendTo(sender);
+-            components.forEach(audience::sendMessage);
++            components.forEach(sender::sendMessage); // Insights-Patched - Don't shade adventure
+             footer.sendTo(sender);
+-            audience.sendMessage(createFooter(page));
++            sender.sendMessage(createFooter(page)); // Insights-Patched - Don't shade adventure
+         }
+     }
+ }
+diff --git a/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/ActionBarNotification.java b/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/ActionBarNotification.java
+index e7c8460da70b8ad78effd3c5e80ab49580bbd0ab..ea78dc8a8b353eb5e73f872f4a09af63f3348ad7 100644
+--- a/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/ActionBarNotification.java
++++ b/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/ActionBarNotification.java
+@@ -30,9 +30,8 @@ public class ActionBarNotification implements Notification {
+         return new SendableNotification(content.resetTemplates()) {
+             @Override
+             public void send() {
+-                var audiences = plugin.getMessages().getAudiences();
+                 content.toComponent().ifPresent(component -> receivers.values()
+-                        .forEach(player -> audiences.player(player).sendActionBar(component)));
++                        .forEach(player -> player.sendActionBar(component))); // Insights-Patched - Don't shade adventure
+             }
+         };
+     }
+diff --git a/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/BossBarNotification.java b/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/BossBarNotification.java
+index 0ad58232b524c78a9061b6f05ccb43ca1672cd66..e566215f491fec019ab7c3517fa25ce3a3ef6989 100644
+--- a/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/BossBarNotification.java
++++ b/Insights-API/src/main/java/dev/frankheijden/insights/api/config/notifications/BossBarNotification.java
+@@ -36,7 +36,7 @@ public class BossBarNotification implements Notification {
+ 
+     @Override
+     public BossBarNotification add(Player player) {
+-        receivers.add(plugin.getMessages().getAudiences().player(player));
++        receivers.add(player); // Insights-Patched - Don't shade adventure
+         return this;
+     }
+ 
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+index 4e7966e3f4283e12c4be040a9978ed4f66a1e615..d22a4df16b961b705e2e540d9499a708b37f822d 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+@@ -43,7 +43,6 @@ import dev.frankheijden.insights.placeholders.InsightsPlaceholderExpansion;
+ import dev.frankheijden.insights.tasks.PlayerTrackerTask;
+ import io.leangen.geantyref.TypeToken;
+ import io.papermc.lib.PaperLib;
+-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+ import org.bukkit.Bukkit;
+ import org.bukkit.World;
+ import org.bukkit.command.CommandSender;
+@@ -85,7 +84,6 @@ public class Insights extends InsightsPlugin {
+     private InsightsPlaceholderExpansion placeholderExpansion;
+     private BukkitTask playerTracker = null;
+     private BukkitTask updateChecker = null;
+-    private BukkitAudiences audiences = null;
+     private RedstoneUpdateCount redstoneUpdateCount = null;
+     private ChunkTeleport chunkTeleport;
+     private InsightsNMS nms;
+@@ -106,7 +104,6 @@ public class Insights extends InsightsPlugin {
+         }
+         nms = InsightsNMS.get();
+ 
+-        this.audiences = BukkitAudiences.create(this);
+         this.listenerManager = new ListenerManager(this);
+         reloadConfigs();
+ 
+@@ -163,7 +160,6 @@ public class Insights extends InsightsPlugin {
+             placeholderExpansion = null;
+         }
+         chunkContainerExecutor.shutdown();
+-        audiences.close();
+     }
+ 
+     @Override
+@@ -200,7 +196,7 @@ public class Insights extends InsightsPlugin {
+     public void reloadMessages() {
+         File file = new File(getDataFolder(), MESSAGES_FILE_NAME);
+         try {
+-            messages = Messages.load(this, this.audiences, file, getResource(MESSAGES_FILE_NAME));
++            messages = Messages.load(this, file, getResource(MESSAGES_FILE_NAME)); // Insights-Patched - Don't shade adventure
+         } catch (IOException ex) {
+             ex.printStackTrace();
+         }
+diff --git a/build.gradle.kts b/build.gradle.kts
+index bc46002a35c1ea5b80541e8b0346db64ace388b1..5aa20adbe61015d32220ebea303304b932cce2cb 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -53,9 +53,6 @@ subprojects {
+     dependencies {
+         compileOnly(libs.paperApi)
+         implementation(libs.paperLib)
+-        implementation(libs.adventureApi)
+-        implementation(libs.adventureMiniMessage)
+-        implementation(libs.adventurePlatformBukkit)
+ 
+         if (!nms || nmsImpl) {
+             compileOnly(project(":Insights-NMS-Core"))
+@@ -98,9 +95,6 @@ subprojects {
+     tasks.withType<ShadowJar> {
+         relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
+         relocate("io.papermc.lib", "$dependencyDir.paperlib")
+-        relocate("net.kyori.adventure", "$dependencyDir.adventure")
+-        relocate("net.kyori.examination", "$dependencyDir.examination")
+-        relocate("net.kyori.option", "$dependencyDir.option")
+         if (nmsImpl) {
+             relocate(project.group.toString().replaceAfterLast('.', "impl"), project.group.toString())
+         }
