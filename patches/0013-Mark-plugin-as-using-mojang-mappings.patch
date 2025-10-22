@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Wed, 22 Oct 2025 04:03:23 -0700
+Subject: [PATCH] Mark plugin as using mojang mappings
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 312cf3be8eb875348cd0024c5a0490ab96d00ca9..76c62cf9017adee6b57c79e9659231127fc0dcfd 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -125,6 +125,7 @@ tasks {
+         dependsOn("shadowJar")
+         finalizedBy("copyJars")
+     }
++    jar { manifest { attributes["paperweight-mappings-namespace"] = "mojang" } } // Insights-Patched - Mark plugin as using mojang mappings.
+ }
+ 
+ tasks.register("cleanJars") {
