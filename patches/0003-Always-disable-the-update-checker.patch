@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Tue, 21 Oct 2025 21:41:15 -0700
+Subject: [PATCH] Always disable the update checker
+
+
+diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+index 5cd57c0960ba3d3c7ac21ec620358dc7fd2c33e6..9e7ca53a684bac9f1d708a3aaee0c5d734ef1fb8 100644
+--- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
++++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+@@ -391,7 +391,7 @@ public class Insights extends InsightsPlugin {
+             updateChecker.cancel();
+         }
+ 
+-        if (settings.UPDATE_CHECKER_ENABLED) {
++        if (false) { // Insights-Patched - Always disable the update checker
+             updateChecker = getServer().getScheduler().runTaskTimerAsynchronously(
+                     this,
+                     new UpdateCheckerTask(this),
