@@ -779,14 +779,14 @@ index 9e7ca53a684bac9f1d708a3aaee0c5d734ef1fb8..9f7a72bef451eeb973399d63e4f11c0f
          listenerManager.unregister();
          redstoneUpdateCount.stop();
 diff --git a/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java b/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
-index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..6d003755b6ee783e6922c5a7c9c17a014ee3e1b7 100644
+index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..5e5f467777adbaf01501a32c464d14fd63f27c26 100644
 --- a/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
 +++ b/Insights/src/main/java/dev/frankheijden/insights/commands/util/CommandSenderMapper.java
 @@ -20,6 +20,7 @@ public class CommandSenderMapper implements SenderMapper<CommandSourceStack, Com
          return new CommandSourceStack() {
              @Override
              public @NotNull Location getLocation() {
-+                if (location != null) return location; // Insights-Patched - Multi-version support (Taken from PR#226 upstream)
++                if (location != null) return location; // Insights-Patched - Multi-version support (Taken from PR#227 upstream)
                  if (sender instanceof Entity entity) {
                      return entity.getLocation();
                  }
@@ -794,11 +794,11 @@ index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..6d003755b6ee783e6922c5a7c9c17a01
  
              @Override
              public @Nullable Entity getExecutor() {
-+                if (entity != null) return entity; // Insights-Patched - Multi-version support (Taken from PR#226 upstream)
++                if (entity != null) return entity; // Insights-Patched - Multi-version support (Taken from PR#227 upstream)
                  return sender instanceof Entity entity ? entity : null;
              }
 +
-+            // Insights-Patched start - Multi-version support (Taken from PR#226 upstream)
++            // Insights-Patched start - Multi-version support (Taken from PR#227 upstream)
 +            private Location location = null;
 +            private Entity entity = null;
 +            @Override
@@ -812,7 +812,7 @@ index ff78c2337fc4ab6f156052533010ae16d5f6aa9b..6d003755b6ee783e6922c5a7c9c17a01
 +                this.entity = executor;
 +                return this;
 +            }
-+            // Insights-Patched end - Multi-version support (Taken from PR#226 upstream)
++            // Insights-Patched end - Multi-version support (Taken from PR#227 upstream)
          };
      }
  }
