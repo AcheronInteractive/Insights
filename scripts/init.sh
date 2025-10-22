@@ -6,11 +6,11 @@ basedir=$(pwd -P)
 # cd -
 
 # Name of the upstream repo. Example would be to use Multiverse-Core if you were forking that plugin.
-UPSTREAM_NAME="PatchedFork"
+UPSTREAM_NAME="Insights"
 # Name this whatever you want, such as upstream name + a suffix.
-FORK_NAME="PatchedFork-Patched"
+FORK_NAME="Insights-Patched"
 # URL where this fork's repository will be located at.
-REPO="https://github.com/AcheronInteractive/PatchedFork"
+REPO="https://github.com/AcheronInteractive/Insights"
 
 function bashColor {
 if [ $2 ]; then
