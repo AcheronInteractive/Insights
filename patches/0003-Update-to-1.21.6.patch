@@ -113,7 +113,7 @@ index 855c8eb2c2137b22a725932730685a8defc4a23d..afd3af1b178de2ff04b416ee3a4c44a8
      }
  
 diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
-index 9e7ca53a684bac9f1d708a3aaee0c5d734ef1fb8..56d6c6b8bd658765ef660eac8697d1e94d65615a 100644
+index 9e7ca53a684bac9f1d708a3aaee0c5d734ef1fb8..fe74f8e4e1f80c89f19576d0ca7eb10cf5c3a9fb 100644
 --- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
 +++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
 @@ -61,7 +61,7 @@ import java.util.Locale;
@@ -121,7 +121,7 @@ index 9e7ca53a684bac9f1d708a3aaee0c5d734ef1fb8..56d6c6b8bd658765ef660eac8697d1e9
  public class Insights extends InsightsPlugin {
  
 -    private static final Version minimumCompatibleVersion = Version.of(1, 20, 6);
-+    private static final Version minimumCompatibleVersion = Version.of(1, 21, 5); // Insights-Patched - 1.21.5 Support (Taken from upstream PR#228)
++    private static final Version minimumCompatibleVersion = Version.of(1, 21, 6); // Insights-Patched - 1.21.6 Support (Taken from upstream PR#228)
  
      private static final String SETTINGS_FILE_NAME = "config.yml";
      private static final String MESSAGES_FILE_NAME = "messages.yml";
