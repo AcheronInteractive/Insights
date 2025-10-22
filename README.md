@@ -7,7 +7,7 @@
 - Limit bypass fixed (Thanks to [Jsinco's 1.21.7 PR](https://github.com/InsightsPlugin/Insights/pull/228))
 - Uses Mojang mappings to avoid Paper's plugin remapping
 - Fixed error from the plugin mishandling air in scan messages.
-- Dropped unnessary shaded libraries
+- Dropped unnecessary shaded libraries
   - Smaller file size
 
 <hr>
