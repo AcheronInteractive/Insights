@@ -5,10 +5,10 @@ Subject: [PATCH] Remove checkstyle
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index f960ad5c5bdba0491e298201ea2f7a5af8fef474..a73811ac5ca99fd35adba82810d6857f702ec5c9 100644
+index 67ca77bd8eb84b5b4b597470f9b693f1bfae8834..1ba89523d033871da6793de065760b2fc36fa2ba 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -16,7 +16,6 @@ version = "6.19.3"
+@@ -16,7 +16,6 @@ version = "6.20.0" // Insights-Patched - Custom version
  
  subprojects {
      apply(plugin = "java")

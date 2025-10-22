@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Yive <6853318+Yive@users.noreply.github.com>
+Date: Wed, 22 Oct 2025 05:04:15 -0700
+Subject: [PATCH] Custom version
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index d722f44da6c1114459daedb43da804c444009fa9..8266ef71163376efb0c5751124dea56fa2866219 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -12,7 +12,7 @@ plugins {
+ val name = "Insights"
+ group = "dev.frankheijden.insights"
+ val dependencyDir = "$group.dependencies"
+-version = "6.19.3"
++version = "6.20.0" // Insights-Patched - Custom version
+ 
+ subprojects {
+     apply(plugin = "java")

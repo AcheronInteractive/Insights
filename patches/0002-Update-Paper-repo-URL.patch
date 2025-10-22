@@ -5,7 +5,7 @@ Subject: [PATCH] Update Paper repo URL
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index d722f44da6c1114459daedb43da804c444009fa9..064b190cc95795360453f4e79777be0086c01ab5 100644
+index 8266ef71163376efb0c5751124dea56fa2866219..7893e102e5c6ca7f4c30cced3f39c31ea25ecf9e 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -46,7 +46,7 @@ subprojects {

@@ -159,7 +159,7 @@ index 9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5..72e49d8449b288df8273d0a1ab121993
              ex.printStackTrace();
          }
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 582d5e37a671a214b7642c848072e1ec5a6b20f0..3bbd10a8a19f2398878ab55d4e0fd85f7bd6d884 100644
+index e884f8459e0d26c3bf62c951c2fb46433817493d..f07f871e69dffa73d5909f64c08e8193d5ebd20d 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -53,9 +53,6 @@ subprojects {

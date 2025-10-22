@@ -28,7 +28,7 @@ index eea30740493d063ed5e52928ae50bfc9a3b94fdf..e416e8fa791319d658087028d8b6aa1c
  
      public IntegerMetric getChunkScanMetric() {
 diff --git a/build.gradle.kts b/build.gradle.kts
-index a73811ac5ca99fd35adba82810d6857f702ec5c9..bc46002a35c1ea5b80541e8b0346db64ace388b1 100644
+index 1ba89523d033871da6793de065760b2fc36fa2ba..e884f8459e0d26c3bf62c951c2fb46433817493d 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -53,7 +53,6 @@ subprojects {

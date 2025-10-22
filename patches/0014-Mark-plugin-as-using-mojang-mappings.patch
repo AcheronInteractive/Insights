@@ -5,7 +5,7 @@ Subject: [PATCH] Mark plugin as using mojang mappings
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 989493f1d88667e33c99effeab21372696f54787..4ac44ce14cf9dcafa1679d03caddb35da76baf90 100644
+index 16ba44a1c3e6dbcd5a017cfa54c8e4c259b03560..8a4457f155ae0a32932725ab394c1f6fd24afec1 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -124,6 +124,7 @@ tasks {
