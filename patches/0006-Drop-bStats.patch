@@ -28,10 +28,10 @@ index eea30740493d063ed5e52928ae50bfc9a3b94fdf..e416e8fa791319d658087028d8b6aa1c
  
      public IntegerMetric getChunkScanMetric() {
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 1ba89523d033871da6793de065760b2fc36fa2ba..e884f8459e0d26c3bf62c951c2fb46433817493d 100644
+index 96d59109d5eddc01b0ab492b0d675104537a1a99..d17b5434388d8fb3bbd453cf9798326e91bd04bb 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -53,7 +53,6 @@ subprojects {
+@@ -56,7 +56,6 @@ subprojects {
      dependencies {
          compileOnly(libs.paperApi)
          implementation(libs.paperLib)
@@ -39,7 +39,7 @@ index 1ba89523d033871da6793de065760b2fc36fa2ba..e884f8459e0d26c3bf62c951c2fb4643
          implementation(libs.adventureApi)
          implementation(libs.adventureMiniMessage)
          implementation(libs.adventurePlatformBukkit)
-@@ -99,7 +98,6 @@ subprojects {
+@@ -103,7 +102,6 @@ subprojects {
      tasks.withType<ShadowJar> {
          relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
          relocate("io.papermc.lib", "$dependencyDir.paperlib")

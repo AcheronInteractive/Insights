@@ -113,10 +113,10 @@ index 0ad58232b524c78a9061b6f05ccb43ca1672cd66..e566215f491fec019ab7c3517fa25ce3
          return this;
      }
  
-diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+diff --git a/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java b/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
 index 9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5..72e49d8449b288df8273d0a1ab1219939ff70d35 100644
---- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
-+++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+--- a/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
++++ b/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
 @@ -43,7 +43,6 @@ import dev.frankheijden.insights.placeholders.InsightsPlaceholderExpansion;
  import dev.frankheijden.insights.tasks.PlayerTrackerTask;
  import io.leangen.geantyref.TypeToken;
@@ -159,10 +159,10 @@ index 9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5..72e49d8449b288df8273d0a1ab121993
              ex.printStackTrace();
          }
 diff --git a/build.gradle.kts b/build.gradle.kts
-index e884f8459e0d26c3bf62c951c2fb46433817493d..f07f871e69dffa73d5909f64c08e8193d5ebd20d 100644
+index d17b5434388d8fb3bbd453cf9798326e91bd04bb..6e96c24d91a805c1e25584aec360a10ac30a59ee 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -53,9 +53,6 @@ subprojects {
+@@ -56,9 +56,6 @@ subprojects {
      dependencies {
          compileOnly(libs.paperApi)
          implementation(libs.paperLib)
@@ -172,7 +172,7 @@ index e884f8459e0d26c3bf62c951c2fb46433817493d..f07f871e69dffa73d5909f64c08e8193
  
          if (!nms || nmsImpl) {
              compileOnly(project(":Insights-NMS-Core"))
-@@ -98,9 +95,6 @@ subprojects {
+@@ -102,9 +99,6 @@ subprojects {
      tasks.withType<ShadowJar> {
          relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
          relocate("io.papermc.lib", "$dependencyDir.paperlib")

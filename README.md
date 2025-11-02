@@ -3,8 +3,6 @@
 
 ### Fork features:
 - Multi-version support (1.21.4 -> 1.21.10)
-  - Partial thanks to [Jsinco's 1.21.7 PR](https://github.com/InsightsPlugin/Insights/pull/228) & [funniray's 1.21.4 PR](https://github.com/InsightsPlugin/Insights/pull/227)
-- Limit bypass fixed (Thanks to [Jsinco's 1.21.7 PR](https://github.com/InsightsPlugin/Insights/pull/228))
 - Uses Mojang mappings to avoid Paper's plugin remapping
 - Fixed error from the plugin mishandling air in scan messages.
 - Dropped unnecessary shaded libraries

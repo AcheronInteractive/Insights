@@ -5,15 +5,15 @@ Subject: [PATCH] Custom version
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index d722f44da6c1114459daedb43da804c444009fa9..8266ef71163376efb0c5751124dea56fa2866219 100644
+index 550e6ed4720a64e6099395448b141864f4f6146a..f1b6f98668b774431b43f498175650ae4b70ef17 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -12,7 +12,7 @@ plugins {
- val name = "Insights"
- group = "dev.frankheijden.insights"
- val dependencyDir = "$group.dependencies"
--version = "6.19.3"
-+version = "6.20.0" // Insights-Patched - Custom version
+@@ -13,7 +13,7 @@ plugins {
  
- subprojects {
-     apply(plugin = "java")
+ 
+ group = "dev.frankheijden.insights"
+-version = "6.20.0"
++version = "6.20.0-acheron" // Insights-Patched - Custom version
+ val dependencyDir = "$group.dependencies"
+ val targetMinecraftVersions = listOf("1.21.10", "1.21.9")
+ 

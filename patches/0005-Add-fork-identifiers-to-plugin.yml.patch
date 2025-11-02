@@ -4,11 +4,11 @@ Date: Wed, 22 Oct 2025 00:36:05 -0700
 Subject: [PATCH] Add fork identifiers to plugin.yml
 
 
-diff --git a/Insights/build.gradle.kts b/Insights/build.gradle.kts
-index a4387ce3f1572cfa36dfb6a8029dac1bb4834151..5f404219bbb49341c52147b036ca790a233d7fd4 100644
---- a/Insights/build.gradle.kts
-+++ b/Insights/build.gradle.kts
-@@ -33,7 +33,10 @@ bukkit {
+diff --git a/Insights-Core/build.gradle.kts b/Insights-Core/build.gradle.kts
+index c1c5f0b8cecd2574fcab301bad0b511bbbeb88bb..14937634133fd25a4bb0f87f1eafae6a58940e89 100644
+--- a/Insights-Core/build.gradle.kts
++++ b/Insights-Core/build.gradle.kts
+@@ -34,7 +34,10 @@ bukkit {
      main = "dev.frankheijden.insights.Insights"
      description = "Insights about your server and regional block limits"
      apiVersion = "1.21"
@@ -18,5 +18,5 @@ index a4387ce3f1572cfa36dfb6a8029dac1bb4834151..5f404219bbb49341c52147b036ca790a
 +    website = "https://github.com/AcheronInteractive/Insights"
 +    // Insights-Patched end - Add fork identifiers to plugin.yml
      softDepend = listOf("PlaceholderAPI")
-     authors = listOf("FrankHeijden")
+     authors = listOf("FrankHeijden", "Jsinco")
      permissions {

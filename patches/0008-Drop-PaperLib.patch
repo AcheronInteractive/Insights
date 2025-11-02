@@ -34,10 +34,10 @@ index 4ab382e45b6218f8afd0d0f5a681537f81f59680..649241b998c92ecba5103819527e2cf7
                      if (tpErr != null) {
                          resultFuture.completeExceptionally(tpErr);
                      } else if (Boolean.FALSE.equals(success)) {
-diff --git a/Insights/src/main/java/dev/frankheijden/insights/Insights.java b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+diff --git a/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java b/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
 index 72e49d8449b288df8273d0a1ab1219939ff70d35..ce7a779c4e698750a2c751f0de249f9dec4e57d8 100644
---- a/Insights/src/main/java/dev/frankheijden/insights/Insights.java
-+++ b/Insights/src/main/java/dev/frankheijden/insights/Insights.java
+--- a/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
++++ b/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
 @@ -42,7 +42,6 @@ import dev.frankheijden.insights.nms.core.InsightsNMS;
  import dev.frankheijden.insights.placeholders.InsightsPlaceholderExpansion;
  import dev.frankheijden.insights.tasks.PlayerTrackerTask;
@@ -63,10 +63,10 @@ index 72e49d8449b288df8273d0a1ab1219939ff70d35..ce7a779c4e698750a2c751f0de249f9d
      }
  
      @Override
-diff --git a/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java b/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
+diff --git a/Insights-Core/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java b/Insights-Core/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
 index e58192cacce8e1784277b470eb145aa343bd8834..e6fe3ac486ab97ca1cc18fa81a493c0c68bc5b63 100644
---- a/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
-+++ b/Insights/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
+--- a/Insights-Core/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
++++ b/Insights-Core/src/main/java/dev/frankheijden/insights/listeners/manager/ListenerManager.java
 @@ -14,7 +14,6 @@ import dev.frankheijden.insights.listeners.PistonListener;
  import dev.frankheijden.insights.listeners.PlayerListener;
  import dev.frankheijden.insights.listeners.WorldListener;
@@ -111,10 +111,10 @@ index e58192cacce8e1784277b470eb145aa343bd8834..e6fe3ac486ab97ca1cc18fa81a493c0c
              disableListeners.add(paperBlockListener);
          } else {
 diff --git a/build.gradle.kts b/build.gradle.kts
-index f07f871e69dffa73d5909f64c08e8193d5ebd20d..16ba44a1c3e6dbcd5a017cfa54c8e4c259b03560 100644
+index 6e96c24d91a805c1e25584aec360a10ac30a59ee..e2d3908c332047105ed5b1033f0a5a51aa88f975 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -52,7 +52,6 @@ subprojects {
+@@ -55,7 +55,6 @@ subprojects {
      val libs = rootProject.libs
      dependencies {
          compileOnly(libs.paperApi)
@@ -122,7 +122,7 @@ index f07f871e69dffa73d5909f64c08e8193d5ebd20d..16ba44a1c3e6dbcd5a017cfa54c8e4c2
  
          if (!nms || nmsImpl) {
              compileOnly(project(":Insights-NMS-Core"))
-@@ -94,7 +93,6 @@ subprojects {
+@@ -98,7 +97,6 @@ subprojects {
  
      tasks.withType<ShadowJar> {
          relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
