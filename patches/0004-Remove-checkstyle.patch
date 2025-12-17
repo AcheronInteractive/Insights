@@ -5,10 +5,10 @@ Subject: [PATCH] Remove checkstyle
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 8d2297b03aca60f8795aa6dcf66b2083ac290f71..96d59109d5eddc01b0ab492b0d675104537a1a99 100644
+index 96325d4de2d8e3d6ad41223ff09fa6db9239c828..c3b0ff5851b852c6af2b9e659bcfe6ed18f29930 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -19,7 +19,6 @@ val targetMinecraftVersions = listOf("1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.
+@@ -19,7 +19,6 @@ val targetMinecraftVersions = listOf("1.21.11", "1.21.10", "1.21.9")
  
  subprojects {
      apply(plugin = "java")

@@ -1006,18 +1006,9 @@ index 0000000000000000000000000000000000000000..41312229d684544c0884821204935f76
 +    }
 +}
 diff --git a/build.gradle.kts b/build.gradle.kts
-index f1b6f98668b774431b43f498175650ae4b70ef17..8d2297b03aca60f8795aa6dcf66b2083ac290f71 100644
+index cbc85f824f9413fcd8445956ae32cba83762bda3..96325d4de2d8e3d6ad41223ff09fa6db9239c828 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -15,7 +15,7 @@ plugins {
- group = "dev.frankheijden.insights"
- version = "6.20.0-acheron" // Insights-Patched - Custom version
- val dependencyDir = "$group.dependencies"
--val targetMinecraftVersions = listOf("1.21.10", "1.21.9")
-+val targetMinecraftVersions = listOf("1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10") // Insights-Patched - Multi-version Support
- 
- subprojects {
-     apply(plugin = "java")
 @@ -26,7 +26,7 @@ subprojects {
  
      val groupParts = project.name.split('-').drop(1)
@@ -1035,21 +1026,22 @@ index f1b6f98668b774431b43f498175650ae4b70ef17..8d2297b03aca60f8795aa6dcf66b2083
          testImplementation(libs.jupiterApi)
          testImplementation(libs.jupiterParams)
          testImplementation(libs.jupiterEngine)
-@@ -130,10 +131,9 @@ dependencies {
+@@ -130,11 +131,9 @@ dependencies {
      implementation(project(":Insights-Core", "shadow"))
      Files
          .list(rootProject.projectDir.toPath().resolve("Insights-NMS"))
 -        .filter { !it.fileName.toString().startsWith(".") }
 +        .filter { !it.fileName.toString().startsWith(".") && !it.fileName.toString().startsWith("Current") } // Insights-Patched - Multi-version Support
          .forEach {
--            val configuration = if (it.fileName.toString() == "Core") "shadow" else "reobf"
--            implementation(project(":Insights-NMS-${it.fileName}", configuration))
+-            //val configuration = if (it.fileName.toString() == "Core") "shadow" else "reobf"
+-            // reobf is no longer needed as we don't support spigot servers and minecraft is no longer obfuscated
+-            implementation(project(":Insights-NMS-${it.fileName}", "shadow"))
 +            implementation(project(":Insights-NMS-${it.fileName}", "shadow")) // Insights-Patched - Multi-version support
          }
  }
  
 diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
-index d27ef552ba9eed1d2c3f8d3b8d3ef407af281878..d8dabcd19619f23a7372005569ab8aa19a185212 100644
+index 478dbb1015bf06f92d3a6aeeee25018a134ba152..4aa5f5a6a5aa2ebc86f1d09e61a58f696cbdb963 100644
 --- a/gradle/libs.versions.toml
 +++ b/gradle/libs.versions.toml
 @@ -1,25 +1,25 @@
@@ -1061,9 +1053,8 @@ index d27ef552ba9eed1d2c3f8d3b8d3ef407af281878..d8dabcd19619f23a7372005569ab8aa1
  paperLib = "1.0.8"
  bStats = "3.0.0"
 -adventure = "4.17.0"
--adventurePlatformBukkit = "4.3.3"
 +adventure = "4.25.0" # Insights-Patched - Multi-version support
-+adventurePlatformBukkit = "4.4.1" # Insights-Patched - Multi-version support
+ adventurePlatformBukkit = "4.4.1"
  assertj = "3.23.1"
  mockito = "4.11.0"
 -jupiter = "5.9.1"
@@ -1073,9 +1064,8 @@ index d27ef552ba9eed1d2c3f8d3b8d3ef407af281878..d8dabcd19619f23a7372005569ab8aa1
 +brigadier = "1.3.10" # Insights-Patched - Multi-version support
  placeholderapi = "2.11.6"
  commodore = "2.2"
--cloudPaper = "2.0.0-beta.9"
+ cloudPaper = "2.0.0-beta.14"
 -cloud = "2.0.0-rc.2"
-+cloudPaper = "2.0.0-beta.10" # Insights-Patched - Multi-version support
 +cloud = "2.0.0" # Insights-Patched - Multi-version support
  runPaper = "2.3.1"
  minotaur = "2.8.7"
