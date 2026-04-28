@@ -114,7 +114,7 @@ index 0ad58232b524c78a9061b6f05ccb43ca1672cd66..e566215f491fec019ab7c3517fa25ce3
      }
  
 diff --git a/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java b/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
-index 9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5..72e49d8449b288df8273d0a1ab1219939ff70d35 100644
+index ed1991ea3d60a321a079b97f527a8df1fb1314fd..09101c1b45a8118ef170a8bce5cd8c38dbea9028 100644
 --- a/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
 +++ b/Insights-Core/src/main/java/dev/frankheijden/insights/Insights.java
 @@ -43,7 +43,6 @@ import dev.frankheijden.insights.placeholders.InsightsPlaceholderExpansion;
@@ -159,7 +159,7 @@ index 9f7a72bef451eeb973399d63e4f11c0fdb7b9bc5..72e49d8449b288df8273d0a1ab121993
              ex.printStackTrace();
          }
 diff --git a/build.gradle.kts b/build.gradle.kts
-index d17b5434388d8fb3bbd453cf9798326e91bd04bb..6e96c24d91a805c1e25584aec360a10ac30a59ee 100644
+index bb6cd76aaeabb8141d6a7fd785b4d61e0c2f347d..53e602e0f782a7575c2c47d0ca904c744f8b53c8 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -56,9 +56,6 @@ subprojects {
@@ -172,7 +172,7 @@ index d17b5434388d8fb3bbd453cf9798326e91bd04bb..6e96c24d91a805c1e25584aec360a10a
  
          if (!nms || nmsImpl) {
              compileOnly(project(":Insights-NMS-Core"))
-@@ -102,9 +99,6 @@ subprojects {
+@@ -101,9 +98,6 @@ subprojects {
      tasks.withType<ShadowJar> {
          relocate("dev.frankheijden.minecraftreflection", "$dependencyDir.minecraftreflection")
          relocate("io.papermc.lib", "$dependencyDir.paperlib")

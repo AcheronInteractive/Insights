@@ -5,10 +5,10 @@ Subject: [PATCH] Remove checkstyle
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 96325d4de2d8e3d6ad41223ff09fa6db9239c828..c3b0ff5851b852c6af2b9e659bcfe6ed18f29930 100644
+index 1660726d338edafc3bc1041ce832c1030a37622a..5770400a404c1664981ff7c6c829f16578badbad 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -19,7 +19,6 @@ val targetMinecraftVersions = listOf("1.21.11", "1.21.10", "1.21.9")
+@@ -19,7 +19,6 @@ val targetMinecraftVersions = listOf("26.1.2", "1.21.11", "1.21.10", "1.21.9")
  
  subprojects {
      apply(plugin = "java")
@@ -16,7 +16,7 @@ index 96325d4de2d8e3d6ad41223ff09fa6db9239c828..c3b0ff5851b852c6af2b9e659bcfe6ed
      apply(plugin = "com.gradleup.shadow")
  
      version = rootProject.version
-@@ -78,7 +77,7 @@ subprojects {
+@@ -77,7 +76,7 @@ subprojects {
  
      tasks {
          build {
@@ -25,7 +25,7 @@ index 96325d4de2d8e3d6ad41223ff09fa6db9239c828..c3b0ff5851b852c6af2b9e659bcfe6ed
          }
  
          compileJava {
-@@ -101,13 +100,6 @@ subprojects {
+@@ -100,13 +99,6 @@ subprojects {
          }
      }
  
